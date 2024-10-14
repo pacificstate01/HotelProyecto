@@ -6,9 +6,9 @@ const users = [
 ];
 
 //Valida si los datos ingresados estand entro del array
-function credenciales(usermane,password){
+function credenciales(username,password){
     for(const user of users){
-        if(user.username === usermane && user.password === password){
+        if(user.username === username && user.password === password){
             return true;
         }
     }
@@ -25,11 +25,24 @@ document.querySelector('#boton').addEventListener('click', function(event) {
     if(credenciales(username,password)){
         //Se guarda el usuario que ingreso en localStorage
         localStorage.setItem('loggedInUser', username);
-        window.location.replace("/Hotel/menu/");
-        alert("datos validos");
+        Swal.fire({
+            title: 'Datos correctos',
+            text: 'Datos ingresados correctamente',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.replace("/Hotel/menu/"); 
+        });
     }
     else{
-        alert("datos no validos");
+        Swal.fire({
+            title: 'Datos incorrectos',
+            text: 'Las credenciales ingresadas son incorrectas',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: True
+        })
         return;
     }
 

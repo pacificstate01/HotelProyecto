@@ -9,4 +9,16 @@ class EntrarLoginView(LoginView):
     redirect_authenticated_user = True
 
 class MenuView(TemplateView):
-    template_name = 'Hotel/base.html'
+    template_name = 'Hotel/dashboard.html'
+
+class ClientsView(TemplateView):
+    template_name = 'Hotel/clientes.html'
+
+class ManageClientsView(TemplateView):
+    template_name = 'Hotel/gestion_clientes.html'
+
+class ManageRoomsView(TemplateView):
+    template_name = 'Hotel/gestion_habitaciones.html'
+
+class BookingView(TemplateView):
+    template_name = 'Hotel/reserva.html'
