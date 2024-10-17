@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
             //Se guarda el usuario que ingreso en localStorage
             localStorage.setItem('loggedInUser', username);
             Swal.fire({
-                title: 'Datos correctos',
-                text: 'Datos ingresados correctamente',
+                title: 'Datos ingresados correctamente',
                 icon: 'success',
                 timer: 1500,
                 showConfirmButton: false
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else{
             Swal.fire({
                 title: 'Datos incorrectos',
-                text: 'Las credenciales ingresadas son incorrectas',
+                text: 'Vuelva a intentar',
                 icon: 'error',
                 confirmButtonText: 'OK'
             })

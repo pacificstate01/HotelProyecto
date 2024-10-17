@@ -1,0 +1,143 @@
+{% extends 'Hotel/base.html' %}
+
+{% load static %}
+{% block extra_styles %}
+<style>
+    .sidebar {
+        position: fixed;
+        z-index:2; 
+    }
+    .content {
+        margin-left: 210px; 
+        padding: 20px;
+        z-index: 0;
+    }
+    .topbar {
+        z-index: 1; 
+    }
+</style>
+<link href="{%  static 'css/adicional.css' %}" rel="stylesheet" type="text/css">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+{% endblock %}
+{% block content %}
+<div class="container-fluid mt-5 pt-5">
+    <div class="content">
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Clientes registrados</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nro Documento</th>
+                                <th>Nombres</th>
+                                <th>Apellidos</th>
+                                <th>Correo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Habitaciones disponibles</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nro Habitacion</th>
+                                <th>Tipo de Habitacion</th>
+                                <th>Estado de habitacion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="HabitacionTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Reservas</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Numero de reserva</th>
+                                <th>Numero de documento</th>
+                                <th>Correo</th>
+                                <th>Habitacion reservada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ReservasTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Client Registration Form -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Registrar reserva</h6>
+            </div>
+            <div class="card-body">
+                <form id="clientForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="nroDocumento">Nro de documento:</label>
+                            <select id="nroDocumento" class="form-select" >
+                                <option value="Seleccione un Nro de documento" disabled selected>Seleccione un Nro de documento</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="Correo">Correo:</label>
+                            <select id="Correo" class="form-control" disabled>
+                                <option></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="Habitacion">Habitacion:</label>
+                            <select id="Habitacion" class="form-select" >
+                                <option value="Seleccione un Nro de habitacion" disabled selected>Seleccione un Nro de habitacion</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3" style="display: none;">
+                            <label for="lastname"></label>
+                            <select id="nombre" class="form-select" >
+                                <option value="" disabled selected></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3" style="display: none;">
+                            <label for="name"></label>
+                            <select id="apellido" class="form-select" >
+                                <option value="" disabled selected></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="botones">
+                        <button class="boton1" id="btnRegistrarReserva"><i class="fa-solid fa-user-plus"></i>Agregar reserva</button>
+                        <button class="boton2" id="deleteReservaBtn"><i class="fa-solid fa-user-minus"></i> Eliminar reserva</button>                                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/js_reserva/mostrar_usuarios.js'%}"></script>
+<script src="{% static 'js/js_reserva/mostrar_habitaciones.js'%}"></script>
+<script src="{% static 'js/js_reserva/reserva.js' %}"></script>
+{%endblock%}

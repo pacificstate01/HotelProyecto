@@ -1,0 +1,104 @@
+{% extends 'Hotel/base.html' %}
+
+{% load static %}
+{% block extra_styles %}
+<link href="{%static 'css/adicional.css'%}" rel="stylesheet" type="text/css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Gestion clientes</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nro Documento</th>
+                            <th>Tipo Documento</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Correo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Actualizar información</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <input type="email" id="NuevoCorreo" class="form-control" placeholder="Correo" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <input type="text" id="NuevoNombre" class="form-control" placeholder="Nombres" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <input type="text" id="NuevoApellido" class="form-control" placeholder="Apellidos" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cerrar" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="modifyBtn">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Client Registration Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Registrar Cliente</h6>
+        </div>
+        <div class="card-body">
+            <form id="clientForm">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="nroDocumento">Nro Documento:</label>
+                        <input type="text" class="form-control input" id="nroDocumento" placeholder="Nro Documento">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="tipoDocumento">Tipo Documento:</label>
+                        <select id="tipoDocumento" class="form-control">
+                            <option value="RUT">RUT</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="nombres">Nombres:</label>
+                        <input type="text" class="form-control input" id="nombres" placeholder="Nombres">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="apellidos">Apellidos:</label>
+                        <input type="text" class="form-control input" id="apellidos" placeholder="Apellidos">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="correo">Correo:</label>
+                        <input type="email" class="form-control input" id="correo" placeholder="Correo">
+                    </div>
+                </div>
+                <div class="botones">
+                    <button class="boton1" id="btnRegistrarCliente"><i class="fa-solid fa-user-plus"></i>Agregar cliente</button>
+                    <button class="boton2" id="deleteClientBtn"><i class="fa-solid fa-user-minus"></i> Eliminar cliente</button>
+                    <button class="boton3" type="button" id="actualizarBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-pen-to-square"></i> Actualizar información</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/js_cliente/insertar_eliminar.js'%}"></script>
+{%endblock%}

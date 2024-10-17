@@ -1,0 +1,32 @@
+.botones button {
+    margin-right: 5rem;
+    border-radius: 10px;
+    border-style: double;
+    transition: transform 0.1s, box-shadow 0.1s; 
+
+}
+.botones a{
+    text-decoration: none;
+    color:#c1d2f1;
+}
+.botones a:hover{
+    text-decoration: none;
+    color:#c1d2f1;
+}
+.botones button:active {
+    transform: translateY(2px); 
+    box-shadow: 0 5px #666; 
+}
+.botones button:last-child {
+    margin-right: 0; 
+}
+.boton1{
+    background-color: #5dc331; 
+}
+
+.boton2{
+    background-color: #d12d2d; 
+}
+.boton3{
+    background-color: #588dee;
+}

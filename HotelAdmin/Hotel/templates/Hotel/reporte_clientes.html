@@ -1,0 +1,35 @@
+{% extends 'Hotel/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Reporte Clientes </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nro Documento</th>
+                                <th>Nombres</th>
+                                <th>Apellidos</th>
+                                <th>Correo</th>
+                                <th>Habitacion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/clientes.js' %}"></script>
+{%endblock%}

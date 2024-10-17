@@ -12,7 +12,7 @@ class MenuView(TemplateView):
     template_name = 'Hotel/dashboard.html'
 
 class ClientsView(TemplateView):
-    template_name = 'Hotel/clientes.html'
+    template_name = 'Hotel/reporte_clientes.html'
 
 class ManageClientsView(TemplateView):
     template_name = 'Hotel/gestion_clientes.html'
