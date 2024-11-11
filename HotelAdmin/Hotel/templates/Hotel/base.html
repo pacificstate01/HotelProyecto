@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.3/dist/sweetalert2.all.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.3/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.min.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
     {% block extra_styles %}
     {% endblock %}
@@ -42,7 +42,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'menu' %}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'home' %}">
                 <div class="sidebar-brand-text mx-3"><i class="fa-solid fa-hotel"></i>Hotel</div>
             </a>
 
@@ -51,7 +51,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="{% url 'menu' %}">
+                <a class="nav-link" href="{% url 'home' %}">
                     <i class="fa-solid fa-table-columns"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -145,16 +145,21 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span id="username" class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
+                                <span id="username" class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.name}} {{user.last_name}} ({{user_name}})</span>
                                 <img src="{% static 'img/person-circle.svg' %}" alt="Logo">
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
                                 <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal" id="cerrar" >
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Cerrar Sesión
-                                </button>
+                                <a class=" dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person-fill fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Perfil
+                                </a>
+                                <form id="logout-form" method="post" action="{%url 'logout'%}">
+                                    {% csrf_token %}
+                                    <button class="dropdown-item" data-toggle="modal" data-target="#logoutModal" id="cerrar">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>Cerrar Sesión
+                                    </button>
+                                </form>
                             </div>
                         </li>
 
@@ -209,45 +214,6 @@
 
 
 
-    <script>
-        var loginUrl = "{% url 'login' %}";  
-        document.addEventListener('DOMContentLoaded', function() {
 
-            const loggedInUser = localStorage.getItem('loggedInUser');
-
-            if (loggedInUser) {
-                document.getElementById('username').textContent = loggedInUser;
-
-                const logoutLink = document.querySelector('#cerrar');
-                logoutLink.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: "Deseas cerrar sesión?",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Si",
-                        }).then((result) => {
-                        if (result.isConfirmed) {
-                            Swal.fire({
-                            title: "Cerrando sesión!",
-                            timer: 1500,
-                            icon: "success",
-                            showConfirmButton: false
-                            });
-                            setTimeout(function() {
-                            localStorage.removeItem('loggedInUser');
-                            window.location.href = loginUrl; 
-                            }, 1500);
-                        }
-                    });
-                });
-            } else {
-                window.location.href = loginUrl; 
-            }
-        });
-
-    </script>
 </body>
 </html>     

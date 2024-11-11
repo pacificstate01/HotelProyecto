@@ -24,6 +24,7 @@ integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEw
                             <th>Nro Habitacion</th>
                             <th>Tipo Habitacion</th>
                             <th>Estado de la habitacion</th>
+                            <th>Precio</th>
                         </tr>
                     </thead>
                     <tbody id="clientTableBody">
@@ -63,7 +64,7 @@ integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEw
             <h6 class="m-0 font-weight-bold text-primary">Registrar Habitacion</h6>
         </div>
         <div class="card-body">
-            <form id="clientForm">
+            <form id="clientForm ">
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <label for="nroHabitacion">Nro Habitacion:</label>
@@ -71,7 +72,7 @@ integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEw
                     </div>
                     <div class="form-group col-md-3">
                         <label for="tipoHabitacion">Tipo habitacion:</label>
-                        <select id="tipoHabitacion" class="form-select">
+                        <select id="tipoHabitacion" class="form-select ">
                             <option value="" disabled>Seleccione el tipo de habitación</option>
                             <option value="Simple">Simple</option>
                             <option value="Doble">Doble</option>
@@ -88,11 +89,19 @@ integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEw
                             <option value="Limpieza">En Limpieza</option>
                         </select>
                     </div>
+                    <div class="form-group col-md-3">
+                        <label for="precioHab">Precio Habitacion:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>   
+                            <input type="text" class="form-control input" id="precioHab" placeholder="Precio Habitacion">                  
+                        </div>
+                    </div>
+                    
                 </div>
                 <div class="botones">
-                    <button class="boton1" id="addHab"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</button>
-                    <button class="boton2" id="borrarHab"><i class="fa-solid fa-user-minus"></i> Eliminar habitacion</button>
-                    <button class="boton3" type="button" id="actualizarHab" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-pen-to-square"></i> Actualizar estado</button>
+                    <button class="btn btn-success" id="addHab"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</button>
+                    <button class="btn btn-danger" id="borrarHab"><i class="fa-solid fa-user-minus"></i> Eliminar habitacion</button>
+                    <button class="btn btn-warning" type="button" id="actualizarHab" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-pen-to-square"></i> Actualizar estado</button>
                 </div>
             </form>
         </div>

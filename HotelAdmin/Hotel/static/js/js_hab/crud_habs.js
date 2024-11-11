@@ -71,8 +71,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const nro = parseInt(validar_input('nroHabitacion'));
         const tipoHab = document.getElementById('tipoHabitacion').value;
         let estadoHab = document.getElementById('estadoHab').value;
+        const precioInput = document.getElementById('precioHab');
+        console.log('Precio Input:', precioInput); // This will log the input element
+        const precio = parseInt(validar_input('precioHab'));
 
-        if (!nro || !tipoHab || !estadoHab) {
+        console.log("PrecioHab before storing:", precio);
+        if (!nro || !tipoHab || !estadoHab || !precio) {
             alert("Ingrese información en todos los campos");
             return;
         }
@@ -84,10 +88,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const newHab = {
                 nroHabitacion: nro,
                 tipoHab: tipoHab,
-                estadoHab: estadoHab
+                estadoHab: estadoHab,
+                precioHab: precio
             }
             habs.push(newHab);
             //Se guarda en localStorage la habitacion creada y se muestra
+            console.log(habs);
             guardar_habs_en_localStorage(); 
             alert("Habitación agregada correctamente");
             cargar_habitacion(); 
@@ -102,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         habs.forEach(function (p) {
             const tr = document.createElement('tr');
-            const row = ['nroHabitacion', 'tipoHab','estadoHab'];
+            const row = ['nroHabitacion', 'tipoHab','estadoHab','PrecioHab'];
             row.forEach(function (i) {
                 const td = document.createElement('td');
                 td.textContent = p[i];

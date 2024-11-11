@@ -16,10 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from Hotel.views import EntrarLoginView
+from Hotel.views import HomeView
+from django.conf import settings
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',EntrarLoginView.as_view(),name='login'),
+    path('',HomeView.as_view(),name='home'),
     path('Hotel/',include('Hotel.urls')),
+    path('accounts/',include('django.contrib.auth.urls')),
+    path('accounts/',include('registration.urls'))
 ]
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
