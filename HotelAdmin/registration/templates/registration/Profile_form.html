@@ -14,14 +14,14 @@
 
     </div>
     <div class="card" style="width: 18rem;">
-        {% if request.user.tech.avatar %}
-        <img src="{{ request.user.tech.avatar.url }}" class="card-img-top" alt="...">
+        {% if request.user.avatar %}
+        <img src="{{ request.user.avatar.url }}" class="card-img-top" alt="...">
         {% else %}
         {% load static %}
         <img src="{% static 'img/profile.webp' %}" class="card-img-top" alt="...">
         {% endif %}
         <div class="card-body">
-            <h5 class="card-title">{{ request.user.tech.name }} {{ request.user.tech.last_name }}</h5>
+            <h5 class="card-title">{{ request.user.name }} {{ request.user.last_name }}</h5>
         </div>
     </div>
 </div>
@@ -43,7 +43,7 @@
                 title: "Perfil actualizado correctamente",
                 icon: "success"
             }).then(function(){
-                window.location.href = "{% url 'profile' %}";
+                window.location.href = "{% url 'home' %}";
             });
         },
         error: function(data){

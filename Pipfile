@@ -8,6 +8,7 @@ django = "*"
 pylint = "*"
 pylint-django = "*"
 pylint-celery = "*"
+pillow = "*"
 
 [dev-packages]
 
