@@ -18,7 +18,7 @@ class TipoUsuario(AbstractUser):
     tipo_usuario = models.CharField(max_length=20, choices=TIPO_USUARIO, verbose_name="Tipo de Usuario")
     codigo_usuario = models.UUIDField(default=uuid.uuid4, unique=True, verbose_name="Código de Usuario")
     direccion = models.CharField(max_length=100, blank=True, null=True, verbose_name="Dirección")
-    telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name="Teléfono")
+    telefono = models.IntegerField(blank=True, null=True, verbose_name="Teléfono")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
 
@@ -26,6 +26,31 @@ class TipoUsuario(AbstractUser):
 
     def get_full_name(self):
         return f"{self.name} {self.last_name}"
+
+
+class Client(models.Model):
+    TIPO_DOCUMENTO = [
+        ('DNI', 'DNI'),
+        ('PASAPORTE', 'Pasaporte'),
+        ('RUT', 'RUT'),
+    ]
+
+    numero_documento = models.CharField(max_length=20, unique=True, primary_key=True, verbose_name="Número de Documento")
+    tipo_documento = models.CharField(max_length=20, choices=TIPO_DOCUMENTO, verbose_name="Tipo de Documento")
+    nombre = models.CharField(max_length=50, verbose_name="Nombre")
+    apellido = models.CharField(max_length=50, verbose_name="Apellido")
+    telefono = models.CharField(max_length=9,blank=True, null=True, verbose_name="Teléfono")
+    correo = models.EmailField(unique=True, verbose_name="Correo Electrónico")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
+    encargado = models.ForeignKey(TipoUsuario,null=True,blank=True,on_delete=models.RESTRICT)
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
+
+
+
+
 
 
 class Reserva(models.Model):

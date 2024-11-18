@@ -1,0 +1,78 @@
+{%extends 'Hotel/base.html'%}
+
+
+{%block content %}
+<div class="container">
+<form id="Client-form" method="post">
+    {%csrf_token %}
+    <label>Tipo de Documento</label>
+    <div class="input-group mb-3">
+        {{form.tipo_documento}}
+    </div>
+    <label>Numero Documento</label>
+    <div class="input-group mb-3">
+        {{form.numero_documento}}
+    </div>
+    <label>Nombre</label>
+    <div class="input-group mb-3">
+        {{form.nombre}}
+    </div>
+    <label>Apellido</label>
+    <div class="input-group mb-3">
+        {{form.apellido}}
+    </div>
+    <label>Telefono</label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="basic-addon1">+56</span>
+          {{form.telefono}}
+        </div>
+    </div>
+    <label>Correo</label>
+    <div class="input-group mb-3">
+        {{form.correo}} 
+    </div>
+    <button class="btn btn-success" type="submit">Save</button>
+    <a href="{%url 'home'%}" class="btn btn-dark">Back</a>
+</form>
+</div>
+<script>
+    document.getElementById("Client-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    $.ajax({
+        url: "{% url 'client_create' %}",
+        type: "post",
+        data: $(this).serialize(),
+        success: function (data) {
+            Swal.fire({
+                title: "¡Éxito!",
+                text: data.message,
+                icon: "success"
+            }).then(function () {
+                window.location.href = "{% url 'gestion_cli' %}";
+            });
+        },
+        error: function (xhr) {
+            const response = JSON.parse(xhr.responseText);
+
+            if (!response.success) {
+                let errorMessages = "";
+
+                for (const [field, errors] of Object.entries(response.errors)) {
+                    errors.forEach(error => {
+                        errorMessages += `${error.message}\n`;
+                    });
+                }
+
+                Swal.fire({
+                    title: "Error en el formulario",
+                    text: errorMessages,
+                    icon: "error"
+                });
+            }
+        }
+    });
+});
+</script>
+{%endblock%}
