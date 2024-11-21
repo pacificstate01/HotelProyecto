@@ -49,6 +49,28 @@ class Client(models.Model):
         return f"{self.nombre} {self.apellido}"
 
 
+class Habitacion(models.Model):
+    ESTADO_HABITACION = [
+        ('DISPONIBLE', 'Disponible'),
+        ('OCUPADA', 'Ocupada'),
+        ('LIMPIEZA', 'Limpieza'),
+    ]
+    TIPO_HABITACION = [
+        ('SIMPLE', 'Simple'),
+        ('DOBLE', 'Doble'),
+        ('SUITE', 'Suite'),
+    ]
+
+    numero_habitacion = models.PositiveIntegerField(primary_key=True, verbose_name="Número de Habitación")
+    tipo_habitacion = models.CharField(max_length=50, choices=TIPO_HABITACION, verbose_name="Tipo de Habitación")
+    estado_habitacion = models.CharField(max_length=20, choices=ESTADO_HABITACION, default='DISPONIBLE', verbose_name="Estado de la Habitación")
+    precio_habitacion = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
+
+
+    def __str__(self):
+        return f"Habitación {self.numero_habitacion} - {self.tipo_habitacion}"
 
 
 

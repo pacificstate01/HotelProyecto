@@ -1,5 +1,5 @@
 from django import forms
-from .models import TipoUsuario,Reserva,Client
+from .models import TipoUsuario,Reserva,Client,Habitacion
 from datetime import datetime
 
 class UserForm(forms.ModelForm):
@@ -42,17 +42,16 @@ class ClientForm(forms.ModelForm):
             'apellido':forms.TextInput(attrs={'class': 'form-control'}),
             'correo':forms.EmailInput(attrs={'class': 'form-control'}),
         }
+
     def clean_numero_documento(self):
-        numero_documento = self.cleaned_data.get('numero_documento')
+        numero_documento = self.cleaned_data.get('numero_documento', '').strip()
 
         rut = ''.join([c for c in numero_documento if c.isdigit()])
 
         if len(rut) != 9:
-            raise forms.ValidationError("El RUT debe ser de 9 digitos")
+            raise forms.ValidationError("El RUT debe tener exactamente 9 dígitos.")
 
-        formatted_rut = f'{rut[:2]}.{rut[2:5]}.{rut[5:8]}-{rut[8]}'
-
-        return formatted_rut
+        return rut
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
@@ -64,6 +63,33 @@ class ClientForm(forms.ModelForm):
             raise forms.ValidationError("El numero debe ser de 9 digitos")
         
         return telefono
+
+class RoomForm(forms.ModelForm):
+    ESTADO_HABITACION = [
+        ('DISPONIBLE', 'Disponible'),
+        ('OCUPADA', 'Ocupada'),
+        ('LIMPIEZA', 'Limpieza'),
+    ]
+    TIPO_HABITACION = [
+        ('SIMPLE', 'Simple'),
+        ('DOBLE', 'Doble'),
+        ('SUITE', 'Suite'),
+    ]
+    tipo_habitacion = forms.ChoiceField(
+        choices=TIPO_HABITACION,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    estado_habitacion = forms.ChoiceField(
+        choices=ESTADO_HABITACION,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    class Meta:
+        model = Habitacion
+        fields = ['numero_habitacion', 'tipo_habitacion','estado_habitacion','precio_habitacion']
+        widgets  = {
+                'numero_habitacion': forms.NumberInput(attrs={'class': 'form-control'}),
+                'precio_habitacion': forms.NumberInput(attrs={'class': 'form-control'})
+        }
 
 
 class ReservaForm(forms.ModelForm):

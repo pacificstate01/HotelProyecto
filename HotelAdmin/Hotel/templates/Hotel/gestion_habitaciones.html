@@ -8,15 +8,15 @@
 {% endblock %}
 {% block content %}
 <div class="container-fluid">
-
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Gestion Habitaciones</h6>
+            <a class="btn btn-success botones"  href="#"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table id="ticket-table" class="table table-striped">
                     <thead>
                         <tr>
                             <th>Nro Habitacion</th>
@@ -31,32 +31,7 @@
             </div>
         </div>
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Actualizar Estado</h1>
-                    
-                </div>
-                <div class="modal-body">
-                    <div class="form-group mb-3">
-                        <select id="nuevoEstado" class="form-select">
-                            <option value="" disabled>Seleccione el estado de la habitación</option>
-                            <option value="Disponible">Disponible</option>
-                            <option value="Ocupada">Ocupada</option>
-                            <option value="Limpieza">En Limpieza</option>
-                        </select>                                    
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="cerrar" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="modifyBtn">Guardar cambios</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Client Registration Form -->
+
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Registrar Habitacion</h6>

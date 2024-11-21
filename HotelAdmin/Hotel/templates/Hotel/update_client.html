@@ -1,0 +1,51 @@
+{% extends 'Hotel/base.html' %}
+
+{% block content %}
+<div class="container">
+    {% if messages %}
+            <div class="alert alert-warning alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+    {% endif %}
+    {% if form.telefono.errors %}
+                <div class="alert alert-warning alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {% for error in form.telefono.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+    {% endif %}
+    <form id="update-form" method="post" enctype="multipart/form-data" action="{% url 'client_update' client.numero_documento %}">
+        {% csrf_token %}
+        <label>Nombre</label>
+        <div class="input-group mb-3">
+            {{form.nombre}}
+        </div>
+        <label>Apellido</label>
+        <div class="input-group mb-3">
+            {{form.apellido}}
+        </div>
+        <label>Telefono</label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">+56</span>
+            {{form.telefono}}
+            </div>
+        </div>
+        <label>Correo</label>
+        <div class="input-group mb-3">
+            {{form.correo}} 
+        </div>
+        <input type="submit" class="btn btn-warning" value="Update">
+        <a href="{%url 'gestion_cli' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+{% endblock %}
