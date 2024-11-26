@@ -1,5 +1,5 @@
 from django.views.generic import ListView,DetailView,CreateView, UpdateView, DeleteView,TemplateView
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import TipoUsuario,Reserva,Client,Habitacion
 from .forms import ReservaForm,ClientForm,RoomForm
@@ -7,35 +7,98 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.http import Http404,JsonResponse
-from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404,redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-
+from datetime import datetime
+from django.utils import timezone
 class HomeView(LoginRequiredMixin,TemplateView):
     template_name = 'Hotel/dashboard.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
+        context['disponible'] = Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count()
+        context['ocupado'] = Habitacion.objects.filter(estado_habitacion='OCUPADA').count()
+        context['limpieza'] = Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count()
+        context['total'] = Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count() + Habitacion.objects.filter(estado_habitacion='OCUPADA').count()
+        return context
 class ClientsView(TemplateView):
     template_name = 'Hotel/reporte_clientes.html'
 
+#VISTAS HABITACIONES
 
-class ManageRoomsView(ListView):
+
+class ManageRoomsView(LoginRequiredMixin,ListView):
     model = Habitacion
     template_name = 'Hotel/gestion_habitaciones.html'
     context_object_name = 'rooms'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = RoomForm()
+        return context
 
-class ManageRoomCreate(CreateView):
+class ManageRoomCreate(LoginRequiredMixin,CreateView):
     model = Habitacion
     form_class = RoomForm
-    template_name = 'Hotel/create_room.html'
+    def form_valid(self, form):
+        self.object = form.save()
+        return JsonResponse({'success': True, 'message': 'Habitacion creada correctamente!'})
+
+    def form_invalid(self, form):
+        return JsonResponse({'success': False, 'errors': form.errors})
+
+class ManageRoomDelete(LoginRequiredMixin,DeleteView):
+    model = Habitacion
     success_url = reverse_lazy('gestion_hab')
 
+    def get_object(self, queryset=None):
+        room = super().get_object(queryset)
+        
+        if room.estado_habitacion == 'OCUPADA':
+            self.room_error = 'Habitacion ocupada, no se puede eliminar.'
+            return None
+        
+        return room
+
+    def delete(self, request, *args, **kwargs):
+        room = self.get_object()
+
+        if room is None:  
+            return JsonResponse({'error': self.room_error}, status=403)
+        
+        return super().delete(request, *args, **kwargs)
+
+    
+
+class ManageRoomUpdate(LoginRequiredMixin, UpdateView):
+    model = Habitacion
+    fields = ['tipo_habitacion', 'precio_habitacion']
+    template_name = 'Hotel/Habitaciones/room_update.html'
+    success_url = reverse_lazy('gestion_hab')
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+
+        form.fields['tipo_habitacion'].widget.attrs.update({'class': 'form-control'})
+        form.fields['precio_habitacion'].widget.attrs.update({'class': 'form-control'})
+        return form
 
 
+class CambiarEstadoHab(View):
+    def post(self, request, numero_habitacion):
+        habitacion = get_object_or_404(Habitacion, numero_habitacion=numero_habitacion)
+        if habitacion.estado_habitacion == 'LIMPIEZA':
+            habitacion.estado_habitacion = 'DISPONIBLE'
+            habitacion.save()
+            messages.success(self.request, f'Habitacion numero {habitacion.numero_habitacion} actualizada.')
 
-
+        return redirect('gestion_hab')
 
 #VISTAS CLIENTES
-class ManageClientsView(ListView):
+class ManageClientsView(LoginRequiredMixin,ListView):
     model = Client
     template_name = 'Hotel/gestion_clientes.html'
     context_object_name = 'clients'
@@ -49,7 +112,7 @@ class ManageClientsView(ListView):
                 client.formatted_numero_documento = client.numero_documento  
         return context
 
-class ClientCreate(CreateView):
+class ClientCreate(LoginRequiredMixin,CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'Hotel/create_client.html'
@@ -120,10 +183,81 @@ class ClientUpdate(LoginRequiredMixin, UpdateView):
     
     
 #VISTAS RESERVA
-class BookingView(TemplateView):
+class BookingView(LoginRequiredMixin,ListView):
+    model = Reserva
     template_name = 'Hotel/reserva.html'
+    context_object_name = 'reservas'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['rooms'] = Habitacion.objects.all()  
+        context['clients'] = Client.objects.all() 
         context['form'] = ReservaForm()
+        for reserva in context['reservas']:
+            rut = ''.join([c for c in reserva.cliente.numero_documento if c.isdigit()])
+            if len(rut) == 9:
+                reserva.cliente.formatted_numero_documento = f'{rut[:2]}.{rut[2:5]}.{rut[5:8]}-{rut[8]}'
+            else:
+                reserva.cliente.formatted_numero_documento = reserva.cliente.numero_documento  
+
+        for cliente in context['clients']:
+            rut = ''.join([c for c in cliente.numero_documento if c.isdigit()])  # Corrected line
+            if len(rut) == 9:
+                cliente.formatted_numero_documento = f'{rut[:2]}.{rut[2:5]}.{rut[5:8]}-{rut[8]}'
+            else:
+                cliente.formatted_numero_documento = cliente.numero_documento  
+
         return context
 
+
+class BookingViewCreate(LoginRequiredMixin,CreateView):
+    model = Reserva
+    form_class = ReservaForm
+    def form_valid(self, form):
+
+        instance = form.save(commit=False)
+        instance.usuario = self.request.user 
+        instance.save()
+        return JsonResponse({'success': True, 'message': 'Reserva creada correctamente!'})
+
+    def form_invalid(self, form):
+        return JsonResponse({'success': False, 'errors': form.errors})
+
+
+class BookingViewDelete(LoginRequiredMixin,DeleteView):
+    model = Reserva
+    success_url = reverse_lazy('reserva')
+
+
+    def form_valid(self, form):
+        codigo_reserva = self.get_object().codigo_reserva
+        return super().form_valid(form)
+    
+class BookingViewUpdate(LoginRequiredMixin, UpdateView):
+    model = Reserva
+    fields = ['FechaEntrada', 'FechaSalida', 'estado_reserva']
+    template_name = 'Hotel/Reserva/reserva_update.html'
+    success_url = reverse_lazy('reserva')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+
+        form.fields['FechaEntrada'].widget.attrs.update({
+            'class':'form-control',
+            'type': 'date',
+            'min': datetime.now().strftime('%Y-%m-%d') 
+        })
+        form.fields['FechaSalida'].widget.attrs.update({
+            'class':'form-control',
+            'type': 'date',
+            'min': datetime.now().strftime('%Y-%m-%d') 
+        })
+
+        form.fields['estado_reserva'].widget.attrs.update({
+            'class': 'form-control'
+        })
+
+        return form

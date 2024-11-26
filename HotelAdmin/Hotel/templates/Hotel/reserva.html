@@ -2,25 +2,12 @@
 
 {% load static %}
 {% block extra_styles %}
-<style>
-    .sidebar {
-        position: fixed;
-        z-index:2; 
-    }
-    .content {
-        margin-left: 210px; 
-        padding: 20px;
-        z-index: 0;
-    }
-    .topbar {
-        z-index: 1; 
-    }
-</style>
+
 <link href="{%  static 'css/adicional.css' %}" rel="stylesheet" type="text/css">
 
 {% endblock %}
 {% block content %}
-<div class="container-fluid mt-5 pt-5">
+<div class="container-fluid">
     <div class="content">
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
@@ -29,16 +16,26 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table id="ticket-table" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Nro Documento</th>
                                 <th>Nombres</th>
                                 <th>Apellidos</th>
                                 <th>Correo</th>
+                                <th>Telefono</th>
                             </tr>
                         </thead>
-                        <tbody id="clientTableBody">
+                        <tbody>
+                            {%for c in clients%}
+                            <tr>
+                                <td>{{c.formatted_numero_documento}}</td>
+                                <td>{{c.nombre}}</td>
+                                <td>{{c.apellido}}</td>
+                                <td>{{c.correo}}</td>
+                                <td>+56{{c.telefono}}</td>
+                            </tr>
+                            {%endfor%}
                         </tbody>
                     </table>
                 </div>
@@ -46,11 +43,11 @@
         </div>
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Habitaciones disponibles</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Habitaciones</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table id="habitaciones-table" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Nro Habitacion</th>
@@ -58,91 +55,248 @@
                                 <th>Estado de habitacion</th>
                             </tr>
                         </thead>
-                        <tbody id="HabitacionTableBody">
+                        <tbody>
+                            {%for hab in rooms%}
+                            <tr>
+                                <td>NRO: {{hab.numero_habitacion}}</td>
+                                <td>{{hab.tipo_habitacion}}</td>
+                                <td>{{hab.estado_habitacion}}</td>
+                            </tr>
+                            {%endfor%}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+        {% if messages %}
+            <div class="alert alert-info alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {% for message in messages %}
+                        <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">Reservas</h6>
+                <a class="btn btn-success botones " data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-user-plus"></i>Agregar Reserva</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table id="ticket-table-rev" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Numero de reserva</th>
                                 <th>Numero de documento</th>
                                 <th>Correo</th>
                                 <th>Habitacion reservada</th>
+                                <th>Fecha entrada</th>
+                                <th>Fecha salida</th>
+                                <th>Estado reserva</th>
+                                <th>Opciones</th>
                             </tr>
                         </thead>
-                        <tbody id="ReservasTableBody">
+                        <tbody>
+                            {% for rev in reservas %}
+                            <tr>
+                                <td>
+                                    RESERVA NRO: {{rev.codigo_reserva}}
+                                </td>
+                                <td>
+                                    RUT: {{rev.cliente.formatted_numero_documento }}
+                                </td>
+                                <td>
+                                    {{rev.cliente.correo}}
+                                </td>
+                                <td>
+                                    NRO HABITACION: {{rev.habitaciones.numero_habitacion}}
+                                </td>
+                                <td>
+                                    {{rev.FechaEntrada|date:"d M, Y"}}
+                                </td>
+                                <td>
+                                    {{rev.FechaSalida|date:"d M, Y" }}
+                                </td>
+                                <td>
+                                    {{rev.estado_reserva}}
+                                </td>
+                                <td class="d-flex gap-2"> 
+                                    <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
+                                    <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger me-2 sm delete-btn">
+                                            <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <!-- Client Registration Form -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Registrar reserva</h6>
-            </div>
-            <div class="card-body">
-                <form id="clientForm">
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="nroDocumento">Nro de documento:</label>
-                            <select id="nroDocumento" class="form-select" >
-                                <option value="Seleccione un Nro de documento" disabled selected>Seleccione un Nro de documento</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="Correo">Correo:</label>
-                            <select id="Correo" class="form-control" disabled>
-                                <option></option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="Habitacion">Habitacion:</label>
-                            <select id="Habitacion" class="form-select" >
-                                <option value="Seleccione un Nro de habitacion" disabled selected>Seleccione un Nro de habitacion</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="FechaHoraEntradas">Fecha y hora de ingreso:</label>
-                            {{form.FechaHoraEntradas}}
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="FechaSalida">Fecha de salida:</label>
-                            {{form.FechaSalida}}
-                        </div>
-                        <div class="form-group col-md-3" style="display: none;">
-                            <label for="lastname"></label>
-                            <select id="nombre" class="form-select" >
-                                <option value="" disabled selected></option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-3" style="display: none;">
-                            <label for="name"></label>
-                            <select id="apellido" class="form-select" >
-                                <option value="" disabled selected></option>
-                            </select>
-                        </div>
+<div class="modal-dialog modal-dialog-centered">
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Agregar Reserva</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="botones">
-                        <button class="btn btn-success"" id="btnRegistrarReserva"><i class="fa-solid fa-user-plus"></i>Agregar reserva</button>
-                        <button class="btn btn-danger" id="deleteReservaBtn"><i class="fa-solid fa-user-minus"></i> Eliminar reserva</button>                                    </div>
-                </form>
+                    <div class="modal-body">
+                        <form id="rev-form" method="post">
+                            {%csrf_token %}
+                            <label>Nro documento</label>
+                            <div class="input-group mb-3">
+                                {{form.cliente}}
+                            </div>
+                            <label>Habitaciones disponibles</label>
+                            <div class="input-group mb-3">
+                                {{form.habitaciones}}
+                            </div>
+                            <label for="FechaHoraEntradas">Fecha de ingreso:</label>
+                            <div class="form-group">
+                                {{form.FechaEntrada}}
+                            </div>
+                            <label for="FechaSalida">Fecha de salida:</label>
+                            <div class="form-group">
+                                {{form.FechaSalida}}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="create-btn">Aceptar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                  </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+</div>
+</div>
+<script>
+    $(document).ready(function() {
+    $('#habitaciones-table').DataTable();  
+});
+</script>
+<script>
+    
+document.getElementById("create-btn").addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const form = document.getElementById("rev-form");
+    const formData = new FormData(form);
+
+    fetch("{% url 'create_reserva' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest", 
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: "¡Éxito!",
+                text: data.message,
+                icon: "success",
+            }).then(() => {
+                window.location.href = "{% url 'reserva' %}";
+            });
+        } else {
+            let errorMessages = Object.values(data.errors)
+                .flat()
+                .join("\n");
+
+            Swal.fire({
+                title: "Error en el formulario",
+                text: errorMessages,
+                icon: "error",
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: "Error inesperado",
+            text: "Hubo un problema al procesar su solicitud. Intente de nuevo más tarde.",
+            icon: "error",
+        });
+        console.error("Error:", error);
+    });
+});
+    
+
+$(document).ready(function () {
+    $('#ticket-table').DataTable();
+});
+$(document).ready(function () {
+    $('#ticket-table-rev').DataTable();
+});
+
+document.querySelectorAll(".delete-btn").forEach((button) => {
+    button.addEventListener("click", function (event) {
+        event.preventDefault();
+        
+        const form = this.closest("form");
+        const actionUrl = form.action; 
+        
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¡No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(actionUrl, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
+                    },
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        Swal.fire(
+                            "¡Eliminado!",
+                            "La reserva ha sido eliminada correctamente.",
+                            "success"
+                        ).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        Swal.fire(
+                            "Error",
+                            "Habitacion ocupada.",
+                            "error"
+                        );
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    Swal.fire(
+                        "Error",
+                        "Hubo un problema al procesar tu solicitud.",
+                        "error"
+                    );
+                });
+            }
+        });
+    });
+});
+
+
+$('#staticBackdrop').on('hidden.bs.modal', function () {
+    $('#rev-form')[0].reset();
+});
+
+</script>
 {% endblock %}
-{% block extra_scripts %}
-<script src="{% static 'js/js_reserva/mostrar_usuarios.js'%}"></script>
-<script src="{% static 'js/js_reserva/mostrar_habitaciones.js'%}"></script>
-<script src="{% static 'js/js_reserva/reserva.js' %}"></script>
-{%endblock%}

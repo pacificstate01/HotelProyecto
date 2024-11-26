@@ -71,6 +71,7 @@ class RoomForm(forms.ModelForm):
         ('LIMPIEZA', 'Limpieza'),
     ]
     TIPO_HABITACION = [
+        ('', 'Seleccione un tipo de habitacion'),
         ('SIMPLE', 'Simple'),
         ('DOBLE', 'Doble'),
         ('SUITE', 'Suite'),
@@ -87,20 +88,42 @@ class RoomForm(forms.ModelForm):
         model = Habitacion
         fields = ['numero_habitacion', 'tipo_habitacion','estado_habitacion','precio_habitacion']
         widgets  = {
-                'numero_habitacion': forms.NumberInput(attrs={'class': 'form-control'}),
-                'precio_habitacion': forms.NumberInput(attrs={'class': 'form-control'})
+                'numero_habitacion': forms.TextInput(attrs={'class': 'form-control'}),
+                'precio_habitacion': forms.TextInput(attrs={'class': 'form-control'})
         }
 
 
 class ReservaForm(forms.ModelForm):
+    cliente = forms.ModelChoiceField(
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Cliente",
+        to_field_name='numero_documento'
+    )
+    habitaciones = forms.ModelChoiceField(
+        queryset=Habitacion.objects.filter(estado_habitacion='DISPONIBLE'),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Habitación"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cliente'].queryset = Client.objects.all()
+        self.fields['cliente'].label_from_instance = lambda obj: obj.numero_documento
+
     class Meta:
         model = Reserva
-        fields = ['FechaHoraEntradas', 'FechaSalida']
+        fields = [
+            'FechaEntrada',
+            'FechaSalida',
+            'habitaciones', 
+            'cliente',
+        ]
         widgets = {
-            'FechaHoraEntradas':forms.DateTimeInput(attrs={
+            'FechaEntrada':forms.DateInput(attrs={
                 'class':'form-control',
-                'type': 'datetime-local',
-                'min': datetime.now().strftime('%Y-%m-%dT%H:%M')
+                'type': 'date',
+                'min': datetime.now().strftime('%Y-%m-%d')
             }),
             'FechaSalida':forms.DateInput(attrs={
                 'class':'form-control',
@@ -108,4 +131,3 @@ class ReservaForm(forms.ModelForm):
                 'min': datetime.now().strftime('%Y-%m-%d')
             })
         }
-        

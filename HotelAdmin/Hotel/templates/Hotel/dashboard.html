@@ -1,8 +1,6 @@
 {% extends 'Hotel/base.html' %}
 {% load static %}
-{% block extra_scripts %}
-<script src="{% static 'js/dashboard.js'%}"></script>
-{%endblock%}
+
 {% block content %}
 <div class="container-fluid">
     <!-- Page Heading -->
@@ -21,7 +19,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 TOTAL HABITACIONES </div>
-                            <span id="totalHab" class="h5 mb-0 font-weight-bold text-gray-800">0</span>
+                            <span id="totalHab" class="h5 mb-0 font-weight-bold text-gray-800">{{total}}</span>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clipboard-list fa-2x text-black-50"></i>
@@ -39,7 +37,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 HABITACIONES DISPONIBLES</div>
-                            <span id="disponibleHab" class="h5 mb-0 font-weight-bold text-gray-800">0</span>
+                            <span id="disponibleHab" class="h5 mb-0 font-weight-bold text-gray-800">{{disponible}}</span>
                         </div>
                         <div class="col-auto">
                             <i class="fa-solid fa-check-to-slot fa-2x text-black-50"></i>
@@ -59,7 +57,7 @@
                             </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <span id="ocupadaHab" class="h5 mb-0 mr-3 font-weight-bold text-black-50">0</span>
+                                    <span id="ocupadaHab" class="h5 mb-0 mr-3 font-weight-bold text-black-50">{{ocupado}}</span>
                                 </div>
 
                             </div>
@@ -80,7 +78,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 HABITACIONES EN LIMPIEZA</div>
-                            <span id="limpiezaHab" class="h5 mb-0 font-weight-bold text-gray-800">0</span>
+                            <span id="limpiezaHab" class="h5 mb-0 font-weight-bold text-gray-800">{{limpieza}}</span>
                         </div>
                         <div class="col-auto">
                             <i class="fa-solid fa-broom fa-2x text-black-50"></i>

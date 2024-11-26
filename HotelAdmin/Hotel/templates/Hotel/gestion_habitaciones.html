@@ -7,12 +7,24 @@
 
 {% endblock %}
 {% block content %}
+
 <div class="container-fluid">
-    <!-- DataTales Example -->
+{% if messages %}
+    <div class="alert alert-info alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {% for message in messages %}
+                <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Gestion Habitaciones</h6>
-            <a class="btn btn-success botones"  href="#"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</a>
+            {%if user.tipo_usuario != 'AUXILIAR'%}
+            <a class="btn btn-success botones " data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</a>
+            {%endif%}
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -22,67 +34,199 @@
                             <th>Nro Habitacion</th>
                             <th>Tipo Habitacion</th>
                             <th>Estado de la habitacion</th>
-                            <th>Precio</th>
+                            <th>Precio por noche</th>
+                            <th>Opciones</th>
                         </tr>
                     </thead>
-                    <tbody id="clientTableBody">
+                    <tbody>
+                        {% for hab in rooms %}
+                        <tr>
+                            <td>
+                               NRO: {{hab.numero_habitacion}}
+                            </td>
+                            <td>
+                                {{hab.tipo_habitacion}}
+                            </td>
+                            <td>
+                                {{hab.estado_habitacion}}
+                            </td>
+                            <td>
+                                ${{hab.precio_habitacion}}
+                            </td>
+                            <td>
+                                {%if user.tipo_usuario != 'AUXILIAR'%}
+                                <a href="{% url 'update_room' hab.numero_habitacion %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
+                                <form method="post" action="{% url 'delete_room' hab.numero_habitacion %}" id="delete-form" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger me-2 sm delete-btn">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </form>
+                                {%endif%}
+                                {%if user.tipo_usuario == 'AUXILIAR' and hab.estado_habitacion == 'LIMPIEZA' %}
+                                    <form method="post" id='estado-form' action="{% url 'limpieza' hab.numero_habitacion %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success" >Habitacion aseada</button>
+                                    </form>
+                               {%endif%}
+                            </td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Registrar Habitacion</h6>
-        </div>
-        <div class="card-body">
-            <form id="clientForm">
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label for="nroHabitacion">Nro Habitacion:</label>
-                        <input type="text" class="form-control input" id="nroHabitacion" placeholder="Nro Habitacion">
+</div>
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Agregar habitacion</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="hab-form" method="post">
+                    {%csrf_token %}
+                    <label>Numero de Habitacion</label>
+                    <div class="input-group mb-3">
+                        {{form.numero_habitacion}}
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="tipoHabitacion">Tipo habitacion:</label>
-                        <select id="tipoHabitacion" class="form-select ">
-                            <option value="" disabled>Seleccione el tipo de habitación</option>
-                            <option value="Simple">Simple</option>
-                            <option value="Doble">Doble</option>
-                            <option value="Triple">Triple</option>
-                            <option value="Matrimonial">Matrimonial</option>
-                        </select>
+                    <label>Estado Habitacion</label>
+                    <div class="input-group mb-3">
+                        {{form.estado_habitacion}}
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="estadoHab">Estado habitacion:</label>
-                        <select id="estadoHab" class="form-select">
-                            <option value="" disabled>Seleccione el estado de la habitación</option>
-                            <option value="Disponible">Disponible</option>
-                            <option value="Ocupada">Ocupada</option>
-                            <option value="Limpieza">En Limpieza</option>
-                        </select>
+                    <label>Tipo Habitacion</label>
+                    <div class="input-group mb-3">
+                        {{form.tipo_habitacion}}
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="precioHab">Precio Habitacion:</label>
+                    <label for="precioHab">Precio Habitacion por noche:</label>
+                    <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-text">$</span>   
-                            <input type="text" class="form-control input" id="precioHab" placeholder="Precio Habitacion">                  
+                            {{form.precio_habitacion}}                
                         </div>
                     </div>
-                    
-                </div>
-                <div class="botones">
-                    <button class="btn btn-success" id="addHab"><i class="fa-solid fa-user-plus"></i>Agregar Habitacion</button>
-                    <button class="btn btn-danger" id="borrarHab"><i class="fa-solid fa-user-minus"></i> Eliminar habitacion</button>
-                    <button class="btn btn-warning" type="button" id="actualizarHab" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-pen-to-square"></i> Actualizar estado</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="create-btn">Aceptar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+</div>
+<script>
+    $('#staticBackdrop').on('hidden.bs.modal', function () {
+        $('#hab-form')[0].reset();
+    });
+</script>
+<script>
+    
+document.getElementById("create-btn").addEventListener("click", function (event) {
+event.preventDefault();
+
+const form = document.getElementById("hab-form");
+const formData = new FormData(form);
+
+fetch("{% url 'create_room' %}", {
+    method: "POST",
+    body: formData,
+    headers: {
+        "X-Requested-With": "XMLHttpRequest", 
+    },
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        Swal.fire({
+            title: "¡Éxito!",
+            text: data.message,
+            icon: "success",
+        }).then(() => {
+            window.location.href = "{% url 'gestion_hab' %}";
+        });
+    } else {
+        let errorMessages = Object.values(data.errors)
+            .flat()
+            .join("\n");
+
+        Swal.fire({
+            title: "Error en el formulario",
+            text: errorMessages,
+            icon: "error",
+        });
+    }
+})
+.catch(error => {
+    Swal.fire({
+        title: "Error inesperado",
+        text: "Hubo un problema al procesar su solicitud. Intente de nuevo más tarde.",
+        icon: "error",
+    });
+    console.error("Error:", error);
+});
+});
 
 
+$(document).ready(function () {
+    $('#ticket-table').DataTable();
+});
 
+document.querySelectorAll(".delete-btn").forEach((button) => {
+button.addEventListener("click", function (event) {
+    event.preventDefault();
+    
+    const form = this.closest("form");
+    const actionUrl = form.action; 
+    
+    Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¡No podrás revertir esto!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminar!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(actionUrl, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
+                },
+            })
+            .then((response) => {
+                if (response.ok) {
+                    Swal.fire(
+                        "¡Eliminado!",
+                        "La habitación ha sido eliminada correctamente.",
+                        "success"
+                    ).then(() => {
+                        location.reload(); 
+                    });
+                } else {
+                    Swal.fire(
+                        "Error",
+                        "Habitacion ocupada.",
+                        "error"
+                    );
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire(
+                    "Error",
+                    "Hubo un problema al procesar tu solicitud.",
+                    "error"
+                );
+            });
+        }
+    });
+});
+});
+
+</script>
 {% endblock %}
-{% block extra_scripts %}
-<script src="{% static 'js/js_hab/crud_habs.js' %}"></script>
-{%endblock%}

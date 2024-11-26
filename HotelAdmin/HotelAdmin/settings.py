@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Hotel',
     'registration',
-    'tempus_dominus'
+    'django.contrib.humanize'
 ]
 
 MIDDLEWARE = [
@@ -120,6 +120,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+USE_L10N= True
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
 
 
 # Static files (CSS, JavaScript, Images)
