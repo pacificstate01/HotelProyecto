@@ -59,12 +59,12 @@
                             </td>
                             <td>
                                 <a class="btn btn-warning me-2" href="{% url 'client_update' c.numero_documento %}">
-                                    <i class="fa-solid fa-pen-to-square sm"></i>
+                                    <i class="fa-solid fa-pen-to-square sm" title="Editar cliente"></i>
                                 </a>
                                 <form method="post" action="{% url 'client_delete' c.numero_documento %}" id="delete-form-{{ c.numero_documento }}" style="display: inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger me-2 sm delete-btn" data-numero="{{ c.numero_documento }}">
-                                        <i class="fa-solid fa-user-minus"></i>
+                                        <i class="fa-solid fa-user-minus" title="Eliminar cliente"></i>
                                     </button>
                                 </form>
                             </td>

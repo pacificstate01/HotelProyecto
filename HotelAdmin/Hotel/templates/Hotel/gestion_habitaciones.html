@@ -55,16 +55,16 @@
                             </td>
                             <td>
                                 {%if user.tipo_usuario != 'AUXILIAR'%}
-                                <a href="{% url 'update_room' hab.numero_habitacion %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
-                                <form method="post" action="{% url 'delete_room' hab.numero_habitacion %}" id="delete-form" style="display: inline;">
+                                <a href="{% url 'update_room' hab.id %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
+                                <form method="post" action="{% url 'delete_room' hab.id %}" id="delete-form" style="display: inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger me-2 sm delete-btn">
-                                        <i class="bi bi-trash3-fill"></i>
+                                        <i class="bi bi-trash3-fill" title="Eliminar habitacion"></i>
                                     </button>
                                 </form>
                                 {%endif%}
                                 {%if user.tipo_usuario == 'AUXILIAR' and hab.estado_habitacion == 'LIMPIEZA' %}
-                                    <form method="post" id='estado-form' action="{% url 'limpieza' hab.numero_habitacion %}">
+                                    <form method="post" id='estado-form' action="{% url 'limpieza' hab.id %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-success" >Habitacion aseada</button>
                                     </form>

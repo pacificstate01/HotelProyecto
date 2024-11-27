@@ -85,7 +85,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="ticket-table-rev" class="table table-striped">
+                    <table id="ticket-table-rev" class="table table-striped cell-border display compact" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Numero de reserva</th>
@@ -102,7 +102,7 @@
                             {% for rev in reservas %}
                             <tr>
                                 <td>
-                                    RESERVA NRO: {{rev.codigo_reserva}}
+                                    RESERVA: {{rev.codigo_reserva}}
                                 </td>
                                 <td>
                                     RUT: {{rev.cliente.formatted_numero_documento }}
@@ -111,7 +111,7 @@
                                     {{rev.cliente.correo}}
                                 </td>
                                 <td>
-                                    NRO HABITACION: {{rev.habitaciones.numero_habitacion}}
+                                    NRO: {{rev.habitaciones.numero_habitacion}}
                                 </td>
                                 <td>
                                     {{rev.FechaEntrada|date:"d M, Y"}}
@@ -122,14 +122,29 @@
                                 <td>
                                     {{rev.estado_reserva}}
                                 </td>
-                                <td class="d-flex gap-2"> 
-                                    <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
+                                <td class="d-flex gap-2">
+                                    {%if rev.estado_reserva == 'CHECK-OUT'%}
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger me-2 sm delete-btn">
                                             <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
                                         </button>
                                     </form>
+                                    {%else%}
+                                    <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar reserva"></i></a>
+                                    <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger me-2 sm delete-btn">
+                                            <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
+                                        </button>
+                                    </form>
+                                    {%endif%}
+                                    {%if rev.estado_reserva == 'CONFIRMADA' %}
+                                    <form method="post" id='estado-form' action="{% url 'estado_limpieza' rev.codigo_reserva %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-info" ><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
+                                    </form>                                    
+                                    {%endif%}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -275,7 +290,7 @@ document.querySelectorAll(".delete-btn").forEach((button) => {
                     } else {
                         Swal.fire(
                             "Error",
-                            "Habitacion ocupada.",
+                            "Habitacion ocupada",
                             "error"
                         );
                     }

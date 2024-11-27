@@ -67,8 +67,6 @@ class ClientForm(forms.ModelForm):
 class RoomForm(forms.ModelForm):
     ESTADO_HABITACION = [
         ('DISPONIBLE', 'Disponible'),
-        ('OCUPADA', 'Ocupada'),
-        ('LIMPIEZA', 'Limpieza'),
     ]
     TIPO_HABITACION = [
         ('', 'Seleccione un tipo de habitacion'),

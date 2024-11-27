@@ -13,7 +13,8 @@ from .views import (
     BookingViewCreate,
     BookingViewDelete,
     BookingViewUpdate,
-    CambiarEstadoHab)
+    CambiarEstadoHab,
+    CambiarEstadoRev)
 
 urlpatterns = [
     path('clientes/',ClientsView.as_view(),name='clientes'),
@@ -34,5 +35,6 @@ urlpatterns = [
     path('reserva/create',BookingViewCreate.as_view(),name='create_reserva'),
     path('reserva/delete/<int:pk>',BookingViewDelete.as_view(),name='delete_reserva'),
     path('reserva/update/<int:pk>',BookingViewUpdate.as_view(),name='update_reserva'),
+    path('reserva/updaterev/<str:codigo_reserva>',CambiarEstadoRev.as_view(),name='estado_limpieza'),
 
     ]

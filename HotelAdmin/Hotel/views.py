@@ -1,12 +1,12 @@
 from django.views.generic import ListView,DetailView,CreateView, UpdateView, DeleteView,TemplateView
 from django.views.generic.edit import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import TipoUsuario,Reserva,Client,Habitacion
 from .forms import ReservaForm,ClientForm,RoomForm
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.http import Http404,JsonResponse
+from django.http import Http404,JsonResponse,HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404,redirect
 from django.contrib import messages
@@ -21,7 +21,8 @@ class HomeView(LoginRequiredMixin,TemplateView):
         context['disponible'] = Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count()
         context['ocupado'] = Habitacion.objects.filter(estado_habitacion='OCUPADA').count()
         context['limpieza'] = Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count()
-        context['total'] = Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count() + Habitacion.objects.filter(estado_habitacion='OCUPADA').count()
+        context['total'] = (Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count() + 
+        Habitacion.objects.filter(estado_habitacion='OCUPADA').count() + Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count())
         return context
 class ClientsView(TemplateView):
     template_name = 'Hotel/reporte_clientes.html'
@@ -33,14 +34,21 @@ class ManageRoomsView(LoginRequiredMixin,ListView):
     model = Habitacion
     template_name = 'Hotel/gestion_habitaciones.html'
     context_object_name = 'rooms'
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = RoomForm()
         return context
 
-class ManageRoomCreate(LoginRequiredMixin,CreateView):
+class ManageRoomCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = Habitacion
     form_class = RoomForm
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def form_valid(self, form):
         self.object = form.save()
         return JsonResponse({'success': True, 'message': 'Habitacion creada correctamente!'})
@@ -48,10 +56,14 @@ class ManageRoomCreate(LoginRequiredMixin,CreateView):
     def form_invalid(self, form):
         return JsonResponse({'success': False, 'errors': form.errors})
 
-class ManageRoomDelete(LoginRequiredMixin,DeleteView):
+class ManageRoomDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     model = Habitacion
     success_url = reverse_lazy('gestion_hab')
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def get_object(self, queryset=None):
         room = super().get_object(queryset)
         
@@ -71,10 +83,15 @@ class ManageRoomDelete(LoginRequiredMixin,DeleteView):
 
     
 
-class ManageRoomUpdate(LoginRequiredMixin, UpdateView):
+class ManageRoomUpdate(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
     model = Habitacion
     fields = ['tipo_habitacion', 'precio_habitacion']
     template_name = 'Hotel/Habitaciones/room_update.html'
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohibido.")
     success_url = reverse_lazy('gestion_hab')
     def form_valid(self, form):
         form.save()
@@ -98,10 +115,15 @@ class CambiarEstadoHab(View):
         return redirect('gestion_hab')
 
 #VISTAS CLIENTES
-class ManageClientsView(LoginRequiredMixin,ListView):
+class ManageClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
     model = Client
     template_name = 'Hotel/gestion_clientes.html'
     context_object_name = 'clients'
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         for client in context['clients']:
@@ -112,12 +134,16 @@ class ManageClientsView(LoginRequiredMixin,ListView):
                 client.formatted_numero_documento = client.numero_documento  
         return context
 
-class ClientCreate(LoginRequiredMixin,CreateView):
+class ClientCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'Hotel/create_client.html'
     success_url = reverse_lazy('gestion_cli')
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def form_invalid(self, form):
         errors = {field: error.get_json_data() for field, error in form.errors.items()}
         return JsonResponse({'success': False, 'errors': errors}, status=400)
@@ -127,11 +153,15 @@ class ClientCreate(LoginRequiredMixin,CreateView):
         messages.success(self.request, f'Cliente con numero de documento {form.instance.numero_documento} ha sido creado correctamente.')
         return JsonResponse({'success': True, 'message': 'Cliente agregado exitosamente!'})
 
-class ClientDelete(LoginRequiredMixin,DeleteView):
+class ClientDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     model = Client
     success_url = reverse_lazy('gestion_cli')
     template_name = None 
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def get_object(self, queryset=None):
         numero_documento = self.kwargs.get('numero_documento')
         return Client.objects.get(numero_documento=numero_documento)
@@ -142,12 +172,16 @@ class ClientDelete(LoginRequiredMixin,DeleteView):
         return super().form_valid(form)
     
     
-class ClientUpdate(LoginRequiredMixin, UpdateView):
+class ClientUpdate(LoginRequiredMixin, UserPassesTestMixin,UpdateView):
     model = Client
     fields=['nombre', 'apellido', 'telefono', 'correo']
     template_name = 'Hotel/update_client.html'
     success_url = reverse_lazy('gestion_cli')
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser  
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
 
@@ -183,13 +217,18 @@ class ClientUpdate(LoginRequiredMixin, UpdateView):
     
     
 #VISTAS RESERVA
-class BookingView(LoginRequiredMixin,ListView):
+class BookingView(LoginRequiredMixin,UserPassesTestMixin,ListView):
     model = Reserva
     template_name = 'Hotel/reserva.html'
     context_object_name = 'reservas'
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser 
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohibido.")
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['rooms'] = Habitacion.objects.all()  
+        context['rooms'] = Habitacion.objects.all()
         context['clients'] = Client.objects.all() 
         context['form'] = ReservaForm()
         for reserva in context['reservas']:
@@ -198,6 +237,9 @@ class BookingView(LoginRequiredMixin,ListView):
                 reserva.cliente.formatted_numero_documento = f'{rut[:2]}.{rut[2:5]}.{rut[5:8]}-{rut[8]}'
             else:
                 reserva.cliente.formatted_numero_documento = reserva.cliente.numero_documento  
+            if reserva.estado_reserva == 'CANCELADA' or reserva.estado_reserva == 'CHECK-OUT':
+                reserva.FechaEntrada = reserva.original_FechaEntrada
+                reserva.FechaSalida = reserva.original_FechaSalida
 
         for cliente in context['clients']:
             rut = ''.join([c for c in cliente.numero_documento if c.isdigit()])  # Corrected line
@@ -207,26 +249,47 @@ class BookingView(LoginRequiredMixin,ListView):
                 cliente.formatted_numero_documento = cliente.numero_documento  
 
         return context
+class CambiarEstadoRev(View):
+    def post(self, request, codigo_reserva):
+        reserva = get_object_or_404(Reserva, codigo_reserva=codigo_reserva)
+        habitaciones = Habitacion.objects.all()
+        if reserva.estado_reserva == 'CONFIRMADA':  
+            if reserva.habitaciones:
+                reserva.habitaciones.estado_habitacion = 'LIMPIEZA'
+                reserva.habitaciones.save()
+            reserva.estado_reserva = 'CHECK-OUT'    
+            reserva.save()
+            messages.success(self.request, f'Habitacion numero {reserva.codigo_reserva} actualizada.')
 
+        return redirect('reserva')
 
-class BookingViewCreate(LoginRequiredMixin,CreateView):
+class BookingViewCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = Reserva
     form_class = ReservaForm
-    def form_valid(self, form):
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
+    def form_valid(self, form):
         instance = form.save(commit=False)
-        instance.usuario = self.request.user 
+        instance.usuario = self.request.user
         instance.save()
         return JsonResponse({'success': True, 'message': 'Reserva creada correctamente!'})
+
 
     def form_invalid(self, form):
         return JsonResponse({'success': False, 'errors': form.errors})
 
 
-class BookingViewDelete(LoginRequiredMixin,DeleteView):
+class BookingViewDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     model = Reserva
     success_url = reverse_lazy('reserva')
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO'  or self.request.user.is_superuser
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
 
     def form_valid(self, form):
         codigo_reserva = self.get_object().codigo_reserva
@@ -237,7 +300,11 @@ class BookingViewUpdate(LoginRequiredMixin, UpdateView):
     fields = ['FechaEntrada', 'FechaSalida', 'estado_reserva']
     template_name = 'Hotel/Reserva/reserva_update.html'
     success_url = reverse_lazy('reserva')
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser
 
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohido.")
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
@@ -255,7 +322,9 @@ class BookingViewUpdate(LoginRequiredMixin, UpdateView):
             'type': 'date',
             'min': datetime.now().strftime('%Y-%m-%d') 
         })
-
+        form.fields['estado_reserva'].choices = [
+                choice for choice in form.fields['estado_reserva'].choices if choice[0] != 'CHECK-OUT'
+        ]
         form.fields['estado_reserva'].widget.attrs.update({
             'class': 'form-control'
         })

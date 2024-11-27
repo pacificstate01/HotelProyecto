@@ -13,7 +13,6 @@
     <script src="https://kit.fontawesome.com/4fc011699a.js" crossorigin="anonymous"></script>
     <title>Inicio</title>
 
-    <!-- Custom fonts for this template-->
     <link href="{% static 'fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -21,6 +20,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.material.css">
 
     <script src="{% static 'js/vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -28,9 +29,9 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
     crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <!-- Incluye el script de JavaScript de DataTables. -->
- 
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.material.js"></script>
+        
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.3/dist/sweetalert2.all.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.3/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -41,18 +42,14 @@
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'home' %}">
                 <div class="sidebar-brand-text mx-3"><i class="fa-solid fa-hotel"></i>Hotel</div>
             </a>
 
-            <!-- Divider -->
             <hr class="sidebar-divider my-0">
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'home' %}">
@@ -88,42 +85,32 @@
                     <span>Reporte Clientes</span></a>
             </li>
             {%endif%}
-            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-           <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
         </div>
 
 
         </ul>
-        <!-- End of Sidebar -->
 
-        <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
             <div id="content">
 
-                <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-                    <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
-                            <!-- Dropdown - Messages -->
                             <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
                                 aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
@@ -144,7 +131,6 @@
                        
 
                         <div class="topbar-divider d-none d-sm-block"></div>
-                        <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -177,48 +163,34 @@
                         </li>
                     </ul>
                 </nav>
-                <!-- End of Topbar -->
 
-                <!-- Begin Page Content -->
                     {% block content %}
                     
                     {% endblock %}
-                    <!-- Content Row -->
                     {% block extra_scripts %}
                     
                     {% endblock %}
                     <div class="row">
 
-                        <!-- Area Chart -->
                         <div class="col-xl-8 col-lg-7">
                         </div>
                     </div>
 
-                    <!-- Content Row -->
                     <div class="row">
-                        <!-- Content Column -->
                         <div class="col-lg-6 mb-4">
                         </div>
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
 
             </div>
-            <!-- End of Main Content -->
         
         </div>
-        <!-- End of Content Wrapper -->
 
     </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Bootstrap core JavaScript-->
-    
-    <!-- Core plugin JavaScript-->
+   
     <script src="{% static 'js/vendor/jquery-easing/jquery.easing.min.js' %}"></script>
 
-    <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
 
