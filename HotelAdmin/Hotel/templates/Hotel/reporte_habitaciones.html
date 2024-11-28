@@ -4,32 +4,39 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Reporte Clientes </h6>
+            <h6 class="m-0 font-weight-bold text-primary">Reporte habitaciones </h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table id="ticket-table" class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Numero de habitacion reservada</th>
-                            <th>Fechas de reserva</th>
+                            <th>Numero de habitacion ocupada</th>
+                            <th>Encargado</th>
+                            <th>Telefono</th>
+                            <th>Tipo de habitacion</th>
+                            <th>Precio por noche</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {%for client in clients%}
+                        {%for hab in habitaciones%}
                         <tr>
                             <td>
-                                {{client.cliente.nombre}} {{client.cliente.apellido}}
+                                {{hab.habitaciones.numero_habitacion}}
                             </td>
                             <td>
-                                {{client.habitaciones.numero_habitacion}}
+                                {{hab.cliente.nombre}} {{hab.cliente.apellido}}
                             </td>
                             <td>
-                                {{client.FechaEntrada}} - {{client.FechaSalida}}
+                                +56{{hab.cliente.telefono}}
+                            </td>
+                            <td>
+                                {{hab.habitaciones.tipo_habitacion}}
+                            </td>
+                            <td>
+                                ${{hab.habitaciones.precio_habitacion}}
                             </td>
 
                         </tr>
@@ -46,4 +53,4 @@
 });
 
 </script>
-{% endblock %}
+{%endblock%}

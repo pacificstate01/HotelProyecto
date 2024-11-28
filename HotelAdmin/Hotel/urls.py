@@ -1,5 +1,6 @@
 from django.urls import path,include
 from .views import (
+    ReporteHabitaciones,
     ClientsView,
     ManageRoomsView,
     ManageClientsView,
@@ -17,7 +18,9 @@ from .views import (
     CambiarEstadoRev)
 
 urlpatterns = [
+    #URLS REPORTES
     path('clientes/',ClientsView.as_view(),name='clientes'),
+    path('habitaciones/',ReporteHabitaciones.as_view(),name='habitaciones'),
     #URLS HABITACIONES
     path('gestion_hab/',ManageRoomsView.as_view(),name='gestion_hab'),
     path('gestion_hab/create/',ManageRoomCreate.as_view(),name='create_room'),

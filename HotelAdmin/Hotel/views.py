@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from django.utils import timezone
+
 class HomeView(LoginRequiredMixin,TemplateView):
     template_name = 'Hotel/dashboard.html'
     def get_context_data(self, **kwargs):
@@ -24,11 +25,29 @@ class HomeView(LoginRequiredMixin,TemplateView):
         context['total'] = (Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count() + 
         Habitacion.objects.filter(estado_habitacion='OCUPADA').count() + Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count())
         return context
-class ClientsView(TemplateView):
+class ClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    model = Reserva
     template_name = 'Hotel/reporte_clientes.html'
+    context_object_name = 'clients'
+
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohibido.")
+
+class ReporteHabitaciones(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    model = Reserva
+    template_name = 'Hotel/reporte_habitaciones.html'
+    context_object_name = 'habitaciones'
+
+    def test_func(self):
+        return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Prohibido.")
 
 #VISTAS HABITACIONES
-
 
 class ManageRoomsView(LoginRequiredMixin,ListView):
     model = Habitacion
@@ -48,7 +67,7 @@ class ManageRoomCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return HttpResponseForbidden("Prohibido.")
     def form_valid(self, form):
         self.object = form.save()
         return JsonResponse({'success': True, 'message': 'Habitacion creada correctamente!'})

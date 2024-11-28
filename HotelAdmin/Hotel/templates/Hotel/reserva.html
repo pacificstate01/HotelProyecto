@@ -85,7 +85,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="ticket-table-rev" class="table table-striped cell-border display compact" style="width:100%">
+                    <table id="ticket-table-rev" class="table table-striped cell-border display nowrap" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Numero de reserva</th>
@@ -122,19 +122,19 @@
                                 <td>
                                     {{rev.estado_reserva}}
                                 </td>
-                                <td class="d-flex gap-2">
+                                <td class="d-flex gap-2 justify-content-start">
                                     {%if rev.estado_reserva == 'CHECK-OUT'%}
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger me-2 sm delete-btn">
+                                        <button type="submit" class="btn btn-danger me-2 btn-sm delete-btn">
                                             <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
                                         </button>
                                     </form>
                                     {%else%}
-                                    <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar reserva"></i></a>
+                                    <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-info"> <i class="bi bi-pencil-square"title="Editar reserva"></i></a>
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger me-2 sm delete-btn">
+                                        <button type="submit" class="btn btn-danger me-2 delete-btn">
                                             <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
                                         </button>
                                     </form>
@@ -142,7 +142,7 @@
                                     {%if rev.estado_reserva == 'CONFIRMADA' %}
                                     <form method="post" id='estado-form' action="{% url 'estado_limpieza' rev.codigo_reserva %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-info" ><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
+                                        <button type="submit" class="btn btn-warning" ><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
                                     </form>                                    
                                     {%endif%}
                                 </td>
