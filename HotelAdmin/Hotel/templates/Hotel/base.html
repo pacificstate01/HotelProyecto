@@ -161,11 +161,9 @@
                                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>Cerrar Sesión
                                     </button>
                                 </form>
-                                {% if user.tipo_usuario == 'ADMINISTRADOR' or user.tipo_usuario == 'ENCARGADO' or user.is_superuser %}
+                                {% if user.tipo_usuario == 'ADMINISTRADOR' or user.is_superuser %}
                                     <a class=" dropdown-item" href="{% url 'signup' %}"><i class="bi bi-person-fill-add fa-sm fa-fw mr-2 text-gray-400"></i>
                                         Crear usuario</a>
-                                    <a class=" dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-person-fill-gear fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Panel admin</a>
                                 {% endif %}
                             </div>
                         </li>

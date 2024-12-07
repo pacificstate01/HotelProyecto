@@ -40,4 +40,4 @@ urlpatterns = [
     path('reserva/update/<int:pk>',BookingViewUpdate.as_view(),name='update_reserva'),
     path('reserva/updaterev/<str:codigo_reserva>',CambiarEstadoRev.as_view(),name='estado_limpieza'),
 
-    ]
+]

@@ -64,7 +64,7 @@
                                 </form>
                                 {%endif%}
                                 {%if user.tipo_usuario == 'AUXILIAR' and hab.estado_habitacion == 'LIMPIEZA' %}
-                                    <form method="post" id='estado-form' action="{% url 'limpieza' hab.id %}">
+                                    <form method="post" id='estado-form' action="{% url 'limpieza' hab.numero_habitacion %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-success" >Habitacion aseada</button>
                                     </form>

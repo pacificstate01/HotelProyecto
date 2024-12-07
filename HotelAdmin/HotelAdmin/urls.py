@@ -24,9 +24,9 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',HomeView.as_view(),name='home'),
-    path('Hotel/',include('Hotel.urls')),
+    path('Hotel/',include('Hotel.urls')),           
     path('accounts/',include('django.contrib.auth.urls')),
-    path('accounts/',include('registration.urls'))
+    path('accounts/',include('registration.urls')),
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static

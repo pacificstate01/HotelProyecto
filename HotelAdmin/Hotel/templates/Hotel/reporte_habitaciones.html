@@ -22,6 +22,7 @@
                     </thead>
                     <tbody>
                         {%for hab in habitaciones%}
+                        {%if estado_habitacion == 'DISPONIBLE'%}
                         <tr>
                             <td>
                                 {{hab.habitaciones.numero_habitacion}}
@@ -38,8 +39,9 @@
                             <td>
                                 ${{hab.habitaciones.precio_habitacion}}
                             </td>
-
+                            
                         </tr>
+                        {%endif%}
                         {%endfor%}
                     </tbody>
                 </table>

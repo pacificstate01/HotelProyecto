@@ -51,6 +51,13 @@ class UserFormReg(UserCreationForm):
         model = TipoUsuario
         fields = ('name', 'last_name', 'username', 'password1', 'password2', 'tipo_usuario')
 
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if TipoUsuario.objects.filter(username=username).exists():  
+            raise forms.ValidationError("El nombre de usuario ya existe. Por favor, elija otro.")
+        return username
+
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -73,6 +80,8 @@ class UserFormReg(UserCreationForm):
                     raise forms.ValidationError("La contraseña no debe ser completamente numerica.")
 
         return password2
+
+   
 
     def save(self, commit=True):
         user = super().save(commit=False)
