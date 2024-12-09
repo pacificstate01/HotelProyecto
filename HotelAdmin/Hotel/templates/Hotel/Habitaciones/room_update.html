@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <form id="update-form" method="post" enctype="multipart/form-data" action="{% url 'update_room' habitacion.numero_habitacion %}">
+    <form id="update-form" method="post" enctype="multipart/form-data" action="{% url 'update_room' habitacion.id %}">
         {% csrf_token %}
         <div class="form-group mb-3">
             <label for="id_tipo_habitacion" class="form-label">Tipo de Habitación</label>
@@ -25,7 +25,7 @@
         event.preventDefault();
         const formData = new FormData(this);
         $.ajax({
-            url: "{%url 'update_room' habitacion.numero_habitacion %}",
+            url: "{%url 'update_room' habitacion.id %}",
             type: "post",
             data: formData,
             processData: false, 

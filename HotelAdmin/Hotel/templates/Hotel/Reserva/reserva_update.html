@@ -20,7 +20,10 @@
         <div class="form-group mb-3">
             {{ form.estado_reserva }}
         </div>
-        
+        <label for="id_tipo_habitacion" class="form-label">Detalles</label>
+        <div class="form-group mb-3">
+            {{ form.detallesRev }}
+        </div>
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-warning">Actualizar</button>
             <a href="{% url 'reserva' %}" class="btn btn-secondary">Cancelar</a>

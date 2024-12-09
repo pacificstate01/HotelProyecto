@@ -116,6 +116,7 @@ class ReservaForm(forms.ModelForm):
             'FechaSalida',
             'habitaciones', 
             'cliente',
+            'detallesRev'
         ]
         widgets = {
             'FechaEntrada':forms.DateInput(attrs={
@@ -127,5 +128,6 @@ class ReservaForm(forms.ModelForm):
                 'class':'form-control',
                 'type': 'date',
                 'min': datetime.now().strftime('%Y-%m-%d')
-            })
+            }),
+            'detallesRev':forms.Textarea(attrs={'class': 'form-control'})
         }

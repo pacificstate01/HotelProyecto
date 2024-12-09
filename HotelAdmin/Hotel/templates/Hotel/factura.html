@@ -1,0 +1,60 @@
+<!-- factura.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura - {{ reserva.codigo_factura }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1><strong>PAGADO</strong></h1>
+    <h1>Factura N°: {{ reserva.codigo_factura }}</h1>
+    <h2>Cliente: {{ reserva.cliente.nombre }} {{ reserva.cliente.apellido }}</h2>
+
+    <p><strong>Fecha de Emisión:</strong> {{ reserva.fecha_emision }}</p>
+    <p><strong>Detalles:</strong> {{ reserva.detallesRev }}</p>
+
+    <h3>Información de la Habitación</h3>
+    <table>
+        <tr>
+            <th>Número de Habitación</th>
+            <td>{{ reserva.habitaciones.numero_habitacion }}</td>
+        </tr>
+        <tr>
+            <th>Tipo</th>
+            <td>{{ reserva.habitaciones.tipo_habitacion }}</td>
+        </tr>
+        <tr>
+            <th>Precio por Noche</th>
+            <td>${{ reserva.habitaciones.precio_habitacion }} pesos</td>
+        </tr>
+        <tr>
+            <th>Días de Estancia</th>
+            <td>{{ dias_estadia }}</td>
+        </tr>
+        <tr>
+            <th>Total</th>
+            <td>${{ total }} pesos</td>
+        </tr>
+    </table>
+</body>
+</html>

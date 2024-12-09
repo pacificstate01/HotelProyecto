@@ -123,14 +123,14 @@
                                     {{rev.estado_reserva}}
                                 </td>
                                 <td class="d-flex gap-2 justify-content-start">
-                                    {%if rev.estado_reserva == 'CHECK-OUT'%}
+                                    {%if rev.estado_reserva == 'CHECK-OUT' or rev.estado_reserva == 'CANCELADA'%}
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger me-2 btn-sm delete-btn">
                                             <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
                                         </button>
                                     </form>
-                                    {%else%}
+                                    {%elif rev.estado_reserva == 'PENDIENTE'%}
                                     <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-info"> <i class="bi bi-pencil-square"title="Editar reserva"></i></a>
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
@@ -143,7 +143,10 @@
                                     <form method="post" id='estado-form' action="{% url 'estado_limpieza' rev.codigo_reserva %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-warning" ><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
-                                    </form>                                    
+                                    </form>
+                                        <a href="{% url 'factura' codigo_factura=rev.codigo_factura  %}" class="btn btn-primary" target="_blank">
+                                            <i class="bi bi-filetype-pdf" title="Factura PDF"></i>   
+                                        </a>                          
                                     {%endif%}
                                 </td>
                             </tr>
@@ -179,6 +182,10 @@
                             <label for="FechaSalida">Fecha de salida:</label>
                             <div class="form-group">
                                 {{form.FechaSalida}}
+                            </div>
+                            <label for="detallesRev">Detalles:</label>
+                            <div class="form-group">
+                                {{form.detallesRev}}
                             </div>
                         </form>
                     </div>

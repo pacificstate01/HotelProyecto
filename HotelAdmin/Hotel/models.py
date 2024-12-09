@@ -90,9 +90,12 @@ class Reserva(models.Model):
     habitaciones = models.ForeignKey(Habitacion, on_delete=models.SET_NULL,verbose_name="Habitaciones",null=True,blank=True)  
     cliente = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name="Cliente")
     usuario = models.ForeignKey(TipoUsuario, on_delete=models.PROTECT, verbose_name="Usuario")
+    detallesRev = models.TextField(blank=True, verbose_name="Detalles reserva")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
-
+    codigo_factura = models.CharField(max_length=20, unique=True,null=True,blank=True)
+    fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión",null=True,blank=True)  
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total",null=True,blank=True)
     def clean(self):
         if self.FechaEntrada and self.FechaSalida:
             if self.FechaSalida <= self.FechaEntrada:
@@ -111,6 +114,10 @@ class Reserva(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
+        if not self.codigo_factura:
+            self.codigo_factura = str(uuid.uuid4())[:8]  
+        
+       
         if self.estado_reserva == 'CONFIRMADA':
             if self.habitaciones:
                 self.habitaciones.estado_habitacion = 'OCUPADA'
@@ -147,3 +154,6 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva R{self.codigo_reserva:05d} para {self.cliente}"
+
+
+

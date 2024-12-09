@@ -15,7 +15,8 @@ from .views import (
     BookingViewDelete,
     BookingViewUpdate,
     CambiarEstadoHab,
-    CambiarEstadoRev)
+    CambiarEstadoRev,
+    Factura_pdf)
 
 urlpatterns = [
     #URLS REPORTES
@@ -40,4 +41,7 @@ urlpatterns = [
     path('reserva/update/<int:pk>',BookingViewUpdate.as_view(),name='update_reserva'),
     path('reserva/updaterev/<str:codigo_reserva>',CambiarEstadoRev.as_view(),name='estado_limpieza'),
 
+
+    #FACTURAS
+    path('reserva/factura/<str:codigo_factura>/',Factura_pdf.as_view(),name='factura')
 ]

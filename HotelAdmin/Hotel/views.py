@@ -8,17 +8,22 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.http import Http404,JsonResponse,HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404,redirect
+from django.shortcuts import get_object_or_404,redirect,render
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from django.utils import timezone
+from django.http import HttpResponse
+from weasyprint import HTML
+from django.template.loader import render_to_string
+from datetime import timedelta
 
+#VISTA REPORTES Y MENU PRINCIPAL
 class HomeView(LoginRequiredMixin,TemplateView):
     template_name = 'Hotel/dashboard.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context['pendiente'] = Reserva.objects.filter(estado_reserva='PENDIENTE').count()
         context['disponible'] = Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count()
         context['ocupado'] = Habitacion.objects.filter(estado_habitacion='OCUPADA').count()
         context['limpieza'] = Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count()
@@ -34,7 +39,7 @@ class ClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohibido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
 
 class ReporteHabitaciones(LoginRequiredMixin,UserPassesTestMixin,ListView):
     model = Reserva
@@ -45,7 +50,7 @@ class ReporteHabitaciones(LoginRequiredMixin,UserPassesTestMixin,ListView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohibido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
 
 #VISTAS HABITACIONES
 
@@ -67,7 +72,7 @@ class ManageRoomCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohibido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def form_valid(self, form):
         self.object = form.save()
         return JsonResponse({'success': True, 'message': 'Habitacion creada correctamente!'})
@@ -82,7 +87,7 @@ class ManageRoomDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def get_object(self, queryset=None):
         room = super().get_object(queryset)
         
@@ -110,7 +115,7 @@ class ManageRoomUpdate(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohibido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     success_url = reverse_lazy('gestion_hab')
     def form_valid(self, form):
         form.save()
@@ -142,7 +147,7 @@ class ManageClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         for client in context['clients']:
@@ -162,7 +167,7 @@ class ClientCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser    
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def form_invalid(self, form):
         errors = {field: error.get_json_data() for field, error in form.errors.items()}
         return JsonResponse({'success': False, 'errors': errors}, status=400)
@@ -180,7 +185,7 @@ class ClientDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser   
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def get_object(self, queryset=None):
         numero_documento = self.kwargs.get('numero_documento')
         return Client.objects.get(numero_documento=numero_documento)
@@ -200,7 +205,7 @@ class ClientUpdate(LoginRequiredMixin, UserPassesTestMixin,UpdateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser  
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
 
@@ -244,12 +249,13 @@ class BookingView(LoginRequiredMixin,UserPassesTestMixin,ListView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser 
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohibido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['rooms'] = Habitacion.objects.all()
         context['clients'] = Client.objects.all() 
         context['form'] = ReservaForm()
+
         for reserva in context['reservas']:
             rut = ''.join([c for c in reserva.cliente.numero_documento if c.isdigit()])
             if len(rut) == 9:
@@ -261,7 +267,7 @@ class BookingView(LoginRequiredMixin,UserPassesTestMixin,ListView):
                 reserva.FechaSalida = reserva.original_FechaSalida
 
         for cliente in context['clients']:
-            rut = ''.join([c for c in cliente.numero_documento if c.isdigit()])  # Corrected line
+            rut = ''.join([c for c in cliente.numero_documento if c.isdigit()])  
             if len(rut) == 9:
                 cliente.formatted_numero_documento = f'{rut[:2]}.{rut[2:5]}.{rut[5:8]}-{rut[8]}'
             else:
@@ -278,7 +284,7 @@ class CambiarEstadoRev(View):
                 reserva.habitaciones.save()
             reserva.estado_reserva = 'CHECK-OUT'    
             reserva.save()
-            messages.success(self.request, f'Habitacion numero {reserva.codigo_reserva} actualizada.')
+            messages.success(self.request, f'Habitacion numero {reserva.habitaciones.numero_habitacion} actualizada a estado de limpieza.')
 
         return redirect('reserva')
 
@@ -289,7 +295,7 @@ class BookingViewCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.usuario = self.request.user
@@ -308,7 +314,7 @@ class BookingViewDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO'  or self.request.user.is_superuser
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
 
     def form_valid(self, form):
         codigo_reserva = self.get_object().codigo_reserva
@@ -316,14 +322,14 @@ class BookingViewDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     
 class BookingViewUpdate(LoginRequiredMixin, UpdateView):
     model = Reserva
-    fields = ['FechaEntrada', 'FechaSalida', 'estado_reserva']
+    fields = ['FechaEntrada', 'FechaSalida', 'estado_reserva','detallesRev']
     template_name = 'Hotel/Reserva/reserva_update.html'
     success_url = reverse_lazy('reserva')
     def test_func(self):
         return self.request.user.tipo_usuario == 'ADMINISTRADOR' or self.request.user.tipo_usuario == 'ENCARGADO' or self.request.user.is_superuser
 
     def handle_no_permission(self):
-        return HttpResponseForbidden("Prohido.")
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
@@ -347,5 +353,54 @@ class BookingViewUpdate(LoginRequiredMixin, UpdateView):
         form.fields['estado_reserva'].widget.attrs.update({
             'class': 'form-control'
         })
-
+        form.fields['detallesRev'].widget.attrs.update({
+            'class': 'form-control'
+        })
         return form
+
+#FACTURA
+
+
+class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Reserva
+    template_name = 'Hotel/factura.html'
+    context_object_name = 'reserva'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            codigo_factura = kwargs['codigo_factura']
+            reserva = get_object_or_404(Reserva, codigo_factura=codigo_factura)
+        except KeyError:
+            return HttpResponse("Código de factura no proporcionado.", status=400)
+
+       
+        habitacion = reserva.habitaciones
+        dias_estadia = (reserva.FechaSalida - reserva.FechaEntrada).days
+        total = habitacion.precio_habitacion * dias_estadia if habitacion else 0
+
+        
+        reserva.monto_total = total
+        reserva.save()
+
+        context = {
+            'reserva': reserva,
+            'habitacion': habitacion,
+            'dias_estadia': dias_estadia,
+            'total': total,
+        }
+
+        html_string = render_to_string(self.template_name, context)
+        html = HTML(string=html_string)
+
+   
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename=factura_{reserva.codigo_factura}.pdf'
+        html.write_pdf(target=response)
+
+        return response
+
+    def test_func(self):
+        return self.request.user.tipo_usuario in ['ADMINISTRADOR', 'ENCARGADO'] or self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        return render(self.request, 'Hotel/sin_permiso.html', status=403)

@@ -21,6 +21,7 @@
                     </thead>
                     <tbody>
                         {%for client in clients%}
+                        {%if client.habitaciones.estado_habitacion == 'OCUPADA'%}
                         <tr>
                             <td>
                                 {{client.cliente.nombre}} {{client.cliente.apellido}}
@@ -29,10 +30,11 @@
                                 {{client.habitaciones.numero_habitacion}}
                             </td>
                             <td>
-                                {{client.original_FechaEntrada}} - {{client.original_FechaSalida}}
+                                {{client.FechaEntrada}} - {{client.FechaSalida}}
                             </td>
-                            {%endif%}
                         </tr>
+                        {%endif%}
+                        {%endfor%}
                     </tbody>
                 </table>
             </div>

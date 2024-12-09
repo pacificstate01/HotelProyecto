@@ -22,7 +22,7 @@
                     </thead>
                     <tbody>
                         {%for hab in habitaciones%}
-                        {%if estado_habitacion == 'DISPONIBLE'%}
+                        {%if hab.habitaciones.estado_habitacion == 'OCUPADA'%}
                         <tr>
                             <td>
                                 {{hab.habitaciones.numero_habitacion}}

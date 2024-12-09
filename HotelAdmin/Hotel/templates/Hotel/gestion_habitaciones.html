@@ -54,7 +54,7 @@
                                 ${{hab.precio_habitacion}}
                             </td>
                             <td>
-                                {%if user.tipo_usuario != 'AUXILIAR'%}
+                                {%if user.tipo_usuario != 'AUXILIAR' and hab.estado_habitacion != 'OCUPADA'%}
                                 <a href="{% url 'update_room' hab.id %}" class="btn btn-primary"> <i class="bi bi-pencil-square"title="Editar habitacion"></i></a>
                                 <form method="post" action="{% url 'delete_room' hab.id %}" id="delete-form" style="display: inline;">
                                     {% csrf_token %}
