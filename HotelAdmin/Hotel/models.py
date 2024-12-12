@@ -74,6 +74,12 @@ class Habitacion(models.Model):
 
 
 
+from datetime import date
+from django.core.exceptions import ValidationError
+from django.db import models
+import uuid
+
+
 class Reserva(models.Model):
     ESTADO_RESERVA = [
         ('PENDIENTE', 'Pendiente'),
@@ -81,79 +87,68 @@ class Reserva(models.Model):
         ('CANCELADA', 'Cancelada'),
         ('CHECK-OUT', 'Check-Out'),
     ]
-    codigo_reserva = models.AutoField(primary_key=True,unique=True)  
+
+    codigo_reserva = models.AutoField(primary_key=True, unique=True)
     estado_reserva = models.CharField(max_length=20, choices=ESTADO_RESERVA, default='PENDIENTE', verbose_name="Estado de Reserva")
-    FechaEntrada = models.DateField( null=True,blank=True)
-    FechaSalida = models.DateField( null=True,blank=True)
-    original_FechaEntrada = models.DateField(blank=True, null=True)  
+    FechaEntrada = models.DateField(null=True, blank=True)
+    FechaSalida = models.DateField(null=True, blank=True)
+    original_FechaEntrada = models.DateField(blank=True, null=True)
     original_FechaSalida = models.DateField(blank=True, null=True)
-    habitaciones = models.ForeignKey(Habitacion, on_delete=models.SET_NULL,verbose_name="Habitaciones",null=True,blank=True)  
-    cliente = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name="Cliente")
-    usuario = models.ForeignKey(TipoUsuario, on_delete=models.PROTECT, verbose_name="Usuario")
+    habitaciones = models.ManyToManyField('Habitacion', verbose_name="Habitaciones")
+    cliente = models.ForeignKey('Client', on_delete=models.PROTECT, verbose_name="Cliente")
+    usuario = models.ForeignKey('TipoUsuario', on_delete=models.PROTECT, verbose_name="Usuario")
     detallesRev = models.TextField(blank=True, verbose_name="Detalles reserva")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
-    codigo_factura = models.CharField(max_length=20, unique=True,null=True,blank=True)
-    fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión",null=True,blank=True)  
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total",null=True,blank=True)
-    def clean(self):
-        if self.FechaEntrada and self.FechaSalida:
-            if self.FechaSalida <= self.FechaEntrada:
-                raise ValidationError("La fecha de salida debe ser posterior a la fecha de entrada.")
-        
-            overlapping_reservations = Reserva.objects.filter(
-                habitaciones=self.habitaciones,
-            ).exclude(codigo_reserva=self.codigo_reserva) 
-            
-            for reservation in overlapping_reservations:
-                if not (self.FechaSalida <= reservation.FechaEntrada or self.FechaEntrada >= reservation.FechaSalida):
-                    raise ValidationError("La habitacion ya esta reservada en esas fechas.")
-        else:
-            raise ValidationError("Las fechas de entrada y salida deben ser proporcionadas.")
+    codigo_factura = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión", null=True, blank=True)
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total", null=True, blank=True)
+    habitaciones_count = models.PositiveIntegerField(default=0, editable=False)
 
+    def clean(self):
+        if not self.FechaEntrada or not self.FechaSalida:
+            raise ValidationError("Las fechas de entrada y salida deben ser proporcionadas.")
+        
+        if self.FechaSalida <= self.FechaEntrada:
+            raise ValidationError("La fecha de salida debe ser posterior a la fecha de entrada.")
+        
+        if self.pk: 
+            overlapping_reservations = Reserva.objects.filter(
+                FechaEntrada__lt=self.FechaSalida,
+                FechaSalida__gt=self.FechaEntrada,
+                estado_reserva__in=['PENDIENTE', 'CONFIRMADA']
+            ).exclude(codigo_reserva=self.codigo_reserva)
+
+            for habitacion in self.habitaciones.all():
+                for reserva in overlapping_reservations:
+                    if habitacion in reserva.habitaciones.all():
+                        raise ValidationError(f"La habitación {habitacion.numero_habitacion} ya está reservada en esas fechas.")
+        
         super().clean()
 
     def save(self, *args, **kwargs):
         if not self.codigo_factura:
             self.codigo_factura = str(uuid.uuid4())[:8]  
         
-       
+        if not self.pk:
+            super().save(*args, **kwargs)
         if self.estado_reserva == 'CONFIRMADA':
-            if self.habitaciones:
-                self.habitaciones.estado_habitacion = 'OCUPADA'
-                self.habitaciones.save()
+            Habitacion.objects.filter(id__in=[h.id for h in self.habitaciones.all()]).update(estado_habitacion='OCUPADA')
+        if not self.original_FechaEntrada and not self.original_FechaSalida:
+            self.original_FechaEntrada = self.FechaEntrada
+            self.original_FechaSalida = self.FechaSalida
         
-        elif self.estado_reserva == 'CANCELADA':
-            if not self.original_FechaEntrada:  
-                self.original_FechaEntrada = self.FechaEntrada
-                self.original_FechaSalida = self.FechaSalida
-            if self.habitaciones:
-                self.habitaciones.estado_habitacion = 'DISPONIBLE'
-                self.habitaciones.save()
-                self.FechaEntrada = date(1900, 1, 1)
-                self.FechaSalida = date(1900, 1, 1)
-        elif self.estado_reserva == 'CHECK-OUT':
-            if not self.original_FechaEntrada:  
-                self.original_FechaEntrada = self.FechaEntrada
-                self.original_FechaSalida = self.FechaSalida
-            if self.habitaciones:
-                self.habitaciones.estado_habitacion = 'LIMPIEZA'
-                self.habitaciones.save()
-                self.FechaEntrada = date(1900, 1, 1)
-                self.FechaSalida = date(1900, 1, 1)
-            self.habitaciones.save()
-
+        if self.estado_reserva == 'CANCELADA' or self.estado_reserva == 'CHECK-OUT':
+            self.FechaEntrada = date(1900, 1, 1)
+            self.FechaSalida = date(1900, 1, 1)
+        
         super().save(*args, **kwargs)
 
-           
+    def get_display_fecha_entrada(self):
+        return self.original_FechaEntrada if self.original_FechaEntrada else self.FechaEntrada
 
-    def delete(self, *args, **kwargs):
-        if self.habitaciones and self.habitaciones.estado_habitacion == 'OCUPADA':
-            raise Exception("Habitacion ocupada.")
-        super().delete(*args, **kwargs)
+    def get_display_fecha_salida(self):
+        return self.original_FechaSalida if self.original_FechaSalida else self.FechaSalida
 
     def __str__(self):
-        return f"Reserva R{self.codigo_reserva:05d} para {self.cliente}"
-
-
-
+        return f"Reserva {self.codigo_reserva} - {self.estado_reserva} - Habitaciones: {self.habitaciones_count}"

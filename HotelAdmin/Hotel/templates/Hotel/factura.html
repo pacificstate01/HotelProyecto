@@ -1,4 +1,3 @@
-<!-- factura.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,34 +25,54 @@
     </style>
 </head>
 <body>
-    <h1><strong>PAGADO</strong></h1>
-    <h1>Factura N°: {{ reserva.codigo_factura }}</h1>
+    <h1>Factura código: {{ reserva.codigo_factura }}</h1>
     <h2>Cliente: {{ reserva.cliente.nombre }} {{ reserva.cliente.apellido }}</h2>
-
+    <h3>Nro de documento: {{ reserva.cliente.numero_documento }}</h3>
+    <h3>Correo: {{ reserva.cliente.correo }}</h3>
+    <h3>Teléfono: +56{{ reserva.cliente.telefono }}</h3>
+    <h3>Fecha entrada: {{ reserva.FechaEntrada }}</h3>
+    <h3>Fecha salida: {{ reserva.FechaSalida }}</h3>
     <p><strong>Fecha de Emisión:</strong> {{ reserva.fecha_emision }}</p>
-    <p><strong>Detalles:</strong> {{ reserva.detallesRev }}</p>
+    
+    {% if not reserva.detallesRev %}
+        <p><strong>Detalles:</strong> Sin detalles</p>
+    {% else %}
+        <p><strong>Detalles:</strong> {{ reserva.detallesRev }}</p>
+    {% endif %}
 
-    <h3>Información de la Habitación</h3>
+    <h3>Información de la(s) Habitación(es)</h3>
     <table>
-        <tr>
-            <th>Número de Habitación</th>
-            <td>{{ reserva.habitaciones.numero_habitacion }}</td>
-        </tr>
-        <tr>
-            <th>Tipo</th>
-            <td>{{ reserva.habitaciones.tipo_habitacion }}</td>
-        </tr>
-        <tr>
-            <th>Precio por Noche</th>
-            <td>${{ reserva.habitaciones.precio_habitacion }} pesos</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Número de Habitación</th>
+                <th>Tipo</th>
+                <th>Precio por Noche</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for habitacion in reserva.habitaciones.all %}
+                <tr>
+                    <td>{{ habitacion.numero_habitacion }}</td>
+                    <td>{{ habitacion.tipo_habitacion }}</td>
+                    <td>${{ habitacion.precio_habitacion }} pesos</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Resumen de la Reserva</h3>
+    <table>
         <tr>
             <th>Días de Estancia</th>
             <td>{{ dias_estadia }}</td>
         </tr>
         <tr>
-            <th>Total</th>
+            <th>Total Neto</th>
             <td>${{ total }} pesos</td>
+        </tr>
+        <tr>
+            <th>Total más IVA (19%)</th>
+            <td>${{ total_impuestos }} pesos</td>
         </tr>
     </table>
 </body>

@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=y596j=v)-be-j(#9hfuvpajh!0fd7!lpdzxjijpeunm@v@8v2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

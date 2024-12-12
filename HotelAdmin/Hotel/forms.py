@@ -2,6 +2,7 @@ from django import forms
 from .models import TipoUsuario,Reserva,Client,Habitacion
 from datetime import datetime
 
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = TipoUsuario
@@ -91,6 +92,8 @@ class RoomForm(forms.ModelForm):
         }
 
 
+
+
 class ReservaForm(forms.ModelForm):
     cliente = forms.ModelChoiceField(
         queryset=Client.objects.all(),
@@ -98,16 +101,33 @@ class ReservaForm(forms.ModelForm):
         label="Cliente",
         to_field_name='numero_documento'
     )
-    habitaciones = forms.ModelChoiceField(
-        queryset=Habitacion.objects.filter(estado_habitacion='DISPONIBLE'),
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Habitación"
+    habitaciones = forms.ModelMultipleChoiceField(
+        queryset=Habitacion.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
+        label="Habitaciones Disponibles"
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Personalizar los datos que se muestran en el campo cliente
         self.fields['cliente'].queryset = Client.objects.all()
-        self.fields['cliente'].label_from_instance = lambda obj: obj.numero_documento
+        self.fields['cliente'].label_from_instance = lambda obj: f"{obj.nombre} {obj.apellido} - ({obj.numero_documento})"
+
+        # Filtrar habitaciones disponibles dinámicamente
+        self.fields['habitaciones'].queryset = Habitacion.objects.filter(estado_habitacion='DISPONIBLE')
+
+    def clean_habitaciones(self):
+        habitaciones = self.cleaned_data.get('habitaciones')
+        if not habitaciones:
+            raise forms.ValidationError("Debes seleccionar al menos una habitación.")
+        
+        # Validación adicional: verificar si las habitaciones están disponibles
+        for habitacion in habitaciones:
+            if habitacion.estado_habitacion != 'DISPONIBLE':
+                raise forms.ValidationError(f"La habitación {habitacion.numero_habitacion} no está disponible.")
+        
+        return habitaciones
+
 
     class Meta:
         model = Reserva
@@ -119,15 +139,15 @@ class ReservaForm(forms.ModelForm):
             'detallesRev'
         ]
         widgets = {
-            'FechaEntrada':forms.DateInput(attrs={
-                'class':'form-control',
+            'FechaEntrada': forms.DateInput(attrs={
+                'class': 'form-control',
                 'type': 'date',
                 'min': datetime.now().strftime('%Y-%m-%d')
             }),
-            'FechaSalida':forms.DateInput(attrs={
-                'class':'form-control',
+            'FechaSalida': forms.DateInput(attrs={
+                'class': 'form-control',
                 'type': 'date',
                 'min': datetime.now().strftime('%Y-%m-%d')
             }),
-            'detallesRev':forms.Textarea(attrs={'class': 'form-control'})
+            'detallesRev': forms.Textarea(attrs={'class': 'form-control'})
         }

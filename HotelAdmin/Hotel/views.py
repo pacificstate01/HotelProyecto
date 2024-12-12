@@ -1,6 +1,13 @@
 from django.views.generic import ListView,DetailView,CreateView, UpdateView, DeleteView,TemplateView
 from django.views.generic.edit import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+from django.shortcuts import render
+from django.http import HttpResponse
+import base64
+from .reporte_habitacion import generar_reporte_ocupacion
+
+
 from .models import TipoUsuario,Reserva,Client,Habitacion
 from .forms import ReservaForm,ClientForm,RoomForm
 from django.urls import reverse_lazy
@@ -30,7 +37,8 @@ class HomeView(LoginRequiredMixin,TemplateView):
         context['total'] = (Habitacion.objects.filter(estado_habitacion='DISPONIBLE').count() + 
         Habitacion.objects.filter(estado_habitacion='OCUPADA').count() + Habitacion.objects.filter(estado_habitacion='LIMPIEZA').count())
         return context
-class ClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    
+class ClientsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Reserva
     template_name = 'Hotel/reporte_clientes.html'
     context_object_name = 'clients'
@@ -40,6 +48,15 @@ class ClientsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
 
     def handle_no_permission(self):
         return render(self.request, 'Hotel/sin_permiso.html', status=403)
+
+    def get_queryset(self):
+        # Optimizar consultas usando select_related y prefetch_related
+        reservas = Reserva.objects.prefetch_related(
+            'habitaciones',  # Trae las habitaciones relacionadas
+            'cliente'        # Trae el cliente relacionado
+        ).filter(FechaEntrada__month=datetime.now().month)  # Si quieres filtrar por el mes actual, agrega este filtro.
+        
+        return reservas
 
 class ReporteHabitaciones(LoginRequiredMixin,UserPassesTestMixin,ListView):
     model = Reserva
@@ -274,19 +291,28 @@ class BookingView(LoginRequiredMixin,UserPassesTestMixin,ListView):
                 cliente.formatted_numero_documento = cliente.numero_documento  
 
         return context
+    
 class CambiarEstadoRev(View):
     def post(self, request, codigo_reserva):
         reserva = get_object_or_404(Reserva, codigo_reserva=codigo_reserva)
-        habitaciones = Habitacion.objects.all()
+        
         if reserva.estado_reserva == 'CONFIRMADA':  
-            if reserva.habitaciones:
-                reserva.habitaciones.estado_habitacion = 'LIMPIEZA'
-                reserva.habitaciones.save()
-            reserva.estado_reserva = 'CHECK-OUT'    
+            # Iterar sobre las habitaciones asociadas a la reserva
+            for habitacion in reserva.habitaciones.all():
+                habitacion.estado_habitacion = 'LIMPIEZA'
+                habitacion.save()
+            
+            # Actualizar el estado de la reserva
+            reserva.estado_reserva = 'CHECK-OUT'
             reserva.save()
-            messages.success(self.request, f'Habitacion numero {reserva.habitaciones.numero_habitacion} actualizada a estado de limpieza.')
+            
+            messages.success(
+                self.request, 
+                f'Las habitaciones asociadas a la reserva R{reserva.codigo_reserva} se actualizaron a estado de limpieza.'
+            )
 
         return redirect('reserva')
+
 
 class BookingViewCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = Reserva
@@ -300,11 +326,13 @@ class BookingViewCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         instance = form.save(commit=False)
         instance.usuario = self.request.user
         instance.save()
+
+        # Asegurarse de que las habitaciones seleccionadas se asocien correctamente con la reserva
+        habitaciones = form.cleaned_data['habitaciones']
+        instance.habitaciones.set(habitaciones)  # Asociamos las habitaciones seleccionadas
+
         return JsonResponse({'success': True, 'message': 'Reserva creada correctamente!'})
 
-
-    def form_invalid(self, form):
-        return JsonResponse({'success': False, 'errors': form.errors})
 
 
 class BookingViewDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
@@ -331,7 +359,15 @@ class BookingViewUpdate(LoginRequiredMixin, UpdateView):
     def handle_no_permission(self):
         return render(self.request, 'Hotel/sin_permiso.html', status=403)
     def form_valid(self, form):
-        form.save()
+        reserva = form.save(commit=False)
+        reserva.save()
+
+        # Actualizar estado de las habitaciones
+        if reserva.estado_reserva == 'CANCELADA':
+            Habitacion.objects.filter(id__in=[h.id for h in reserva.habitaciones.all()]).update(estado_habitacion='DISPONIBLE')
+        elif reserva.estado_reserva == 'CHECK-OUT':
+            Habitacion.objects.filter(id__in=[h.id for h in reserva.habitaciones.all()]).update(estado_habitacion='LIMPIEZA')
+
         return super().form_valid(form)
 
     def get_form(self, *args, **kwargs):
@@ -360,7 +396,6 @@ class BookingViewUpdate(LoginRequiredMixin, UpdateView):
 
 #FACTURA
 
-
 class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Reserva
     template_name = 'Hotel/factura.html'
@@ -373,26 +408,26 @@ class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         except KeyError:
             return HttpResponse("Código de factura no proporcionado.", status=400)
 
-       
-        habitacion = reserva.habitaciones
-        dias_estadia = (reserva.FechaSalida - reserva.FechaEntrada).days
-        total = habitacion.precio_habitacion * dias_estadia if habitacion else 0
-
+        dias_estadia = (reserva.FechaSalida - reserva.FechaEntrada).days if reserva.FechaEntrada and reserva.FechaSalida else 0
+        
+        total = sum(h.precio_habitacion for h in reserva.habitaciones.all()) * dias_estadia
+        total_impuestos = total + (total * 0.19)
         
         reserva.monto_total = total
         reserva.save()
 
+        
         context = {
             'reserva': reserva,
-            'habitacion': habitacion,
+            'habitaciones': reserva.habitaciones.all(),  
             'dias_estadia': dias_estadia,
             'total': total,
+            'total_impuestos': total_impuestos
         }
 
         html_string = render_to_string(self.template_name, context)
         html = HTML(string=html_string)
 
-   
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename=factura_{reserva.codigo_factura}.pdf'
         html.write_pdf(target=response)
@@ -404,3 +439,17 @@ class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def handle_no_permission(self):
         return render(self.request, 'Hotel/sin_permiso.html', status=403)
+
+    
+
+#REPORTE OCUPACION
+
+def reporte_ocupacion(request):
+    # Llamar a la función para generar el gráfico
+    imagen = generar_reporte_ocupacion()
+
+    # Codificar la imagen a base64
+    imagen_base64 = base64.b64encode(imagen.getvalue()).decode('utf-8')
+
+    # Pasar la imagen codificada a la plantilla
+    return render(request, 'Hotel/reporte_habitaciones.html', {'imagen_base64': imagen_base64})

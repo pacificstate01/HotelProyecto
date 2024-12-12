@@ -111,7 +111,9 @@
                                     {{rev.cliente.correo}}
                                 </td>
                                 <td>
-                                    NRO: {{rev.habitaciones.numero_habitacion}}
+                                    {% for habitacion in rev.habitaciones.all %}
+                                        <p>NRO: {{ habitacion.numero_habitacion }}</p>
+                                    {% endfor %}  
                                 </td>
                                 <td>
                                     {{rev.FechaEntrada|date:"d M, Y"}}
@@ -140,13 +142,13 @@
                                     </form>
                                     {%endif%}
                                     {%if rev.estado_reserva == 'CONFIRMADA' %}
-                                    <form method="post" id='estado-form' action="{% url 'estado_limpieza' rev.codigo_reserva %}">
+                                    <a href="{% url 'factura' codigo_factura=rev.codigo_factura  %}" class="btn btn-primary show-btn" target="_blank" onclick="showForm(this);">
+                                        <i class="bi bi-filetype-pdf" title="Factura PDF"></i>   
+                                    </a>   
+                                    <form method="post" id='estado-form' action="{% url 'estado_limpieza' rev.codigo_reserva %}" style="display: none;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-warning" ><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
-                                    </form>
-                                        <a href="{% url 'factura' codigo_factura=rev.codigo_factura  %}" class="btn btn-primary" target="_blank">
-                                            <i class="bi bi-filetype-pdf" title="Factura PDF"></i>   
-                                        </a>                          
+                                        <button type="submit" class="btn btn-warning"><i class="bi bi-box-arrow-right" title="Check-out limpieza"></i></button>
+                                    </form>    
                                     {%endif%}
                                 </td>
                             </tr>
@@ -207,6 +209,14 @@
     $('#habitaciones-table').DataTable();  
 });
 </script>
+<script>
+    function showForm(button) {
+        const form = button.nextElementSibling;
+        if (form && form.tagName === 'FORM') {
+            form.style.display = 'block';
+        }
+    }
+  </script>
 <script>
     
 document.getElementById("create-btn").addEventListener("click", function (event) {

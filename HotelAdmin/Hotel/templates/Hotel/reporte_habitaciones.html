@@ -3,56 +3,17 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Reporte habitaciones </h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="ticket-table" class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Numero de habitacion ocupada</th>
-                            <th>Encargado</th>
-                            <th>Telefono</th>
-                            <th>Tipo de habitacion</th>
-                            <th>Precio por noche</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%for hab in habitaciones%}
-                        {%if hab.habitaciones.estado_habitacion == 'OCUPADA'%}
-                        <tr>
-                            <td>
-                                {{hab.habitaciones.numero_habitacion}}
-                            </td>
-                            <td>
-                                {{hab.cliente.nombre}} {{hab.cliente.apellido}}
-                            </td>
-                            <td>
-                                +56{{hab.cliente.telefono}}
-                            </td>
-                            <td>
-                                {{hab.habitaciones.tipo_habitacion}}
-                            </td>
-                            <td>
-                                ${{hab.habitaciones.precio_habitacion}}
-                            </td>
-                            
-                        </tr>
-                        {%endif%}
-                        {%endfor%}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ocupación</title>
+</head>
+<body>
+    <div class="container">
+    <h1>Reporte de Ocupación</h1>
+    <img src="data:image/png;base64,{{ imagen_base64 }}" alt="Gráfico de Ocupación">
     </div>
-</div>
-<script>
-    $(document).ready(function () {
-    $('#ticket-table').DataTable();
-});
-
-</script>
+</body>
+</html>
 {%endblock%}

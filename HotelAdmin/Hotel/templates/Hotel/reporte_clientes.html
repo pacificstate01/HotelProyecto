@@ -20,21 +20,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {%for client in clients%}
-                        {%if client.habitaciones.estado_habitacion == 'OCUPADA'%}
-                        <tr>
-                            <td>
-                                {{client.cliente.nombre}} {{client.cliente.apellido}}
-                            </td>
-                            <td>
-                                {{client.habitaciones.numero_habitacion}}
-                            </td>
-                            <td>
-                                {{client.FechaEntrada}} - {{client.FechaSalida}}
-                            </td>
-                        </tr>
-                        {%endif%}
-                        {%endfor%}
+                        {% for reserva in clients %}
+                            {% for habitacion in reserva.habitaciones.all %}
+                                {% if habitacion.estado_habitacion == 'OCUPADA' %}
+                                    <tr>
+                                        <td>
+                                            {{ reserva.cliente.nombre }} {{ reserva.cliente.apellido }}
+                                        </td>
+                                        <td>
+                                            {{ habitacion.numero_habitacion }}
+                                        </td>
+                                        <td>
+                                            {{ reserva.FechaEntrada }} - {{ reserva.FechaSalida }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -43,8 +45,7 @@
 </div>
 <script>
     $(document).ready(function () {
-    $('#ticket-table').DataTable();
-});
-
+        $('#ticket-table').DataTable();
+    });
 </script>
 {% endblock %}
