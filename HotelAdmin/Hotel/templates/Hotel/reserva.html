@@ -100,6 +100,7 @@
                         </thead>
                         <tbody>
                             {% for rev in reservas %}
+                            {%if rev.estado_reserva != 'CHECK-OUT'%}
                             <tr>
                                 <td>
                                     RESERVA: {{rev.codigo_reserva}}
@@ -125,14 +126,7 @@
                                     {{rev.estado_reserva}}
                                 </td>
                                 <td class="d-flex gap-2 justify-content-start">
-                                    {%if rev.estado_reserva == 'CHECK-OUT' or rev.estado_reserva == 'CANCELADA'%}
-                                    <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger me-2 btn-sm delete-btn">
-                                            <i class="bi bi-trash3-fill" title="Cancelar reserva"></i>
-                                        </button>
-                                    </form>
-                                    {%elif rev.estado_reserva == 'PENDIENTE'%}
+                                    {%if rev.estado_reserva == 'PENDIENTE'%}
                                     <a href="{% url 'update_reserva' rev.codigo_reserva %}" class="btn btn-info"> <i class="bi bi-pencil-square"title="Editar reserva"></i></a>
                                     <form method="post" action="{% url 'delete_reserva' rev.codigo_reserva %}" id="delete-form" >
                                         {% csrf_token %}
@@ -152,6 +146,60 @@
                                     {%endif%}
                                 </td>
                             </tr>
+                            {%endif%}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Archivo Reservas</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="ticket-table-rev-arch" class="table table-striped cell-border display nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Numero de reserva</th>
+                                <th>Numero de documento</th>
+                                <th>Correo</th>
+                                <th>Habitacion reservada</th>
+                                <th>Fecha entrada</th>
+                                <th>Fecha salida</th>
+                                <th>Estado reserva</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rev in reservas %}
+                            {%if rev.estado_reserva == 'CHECK-OUT' or rev.estado_reserva == 'CANCELADA'%}
+                            <tr>
+                                <td>
+                                    RESERVA: {{rev.codigo_reserva}}
+                                </td>
+                                <td>
+                                    RUT: {{rev.cliente.formatted_numero_documento }}
+                                </td>
+                                <td>
+                                    {{rev.cliente.correo}}
+                                </td>
+                                <td>
+                                    {% for habitacion in rev.habitaciones.all %}
+                                        <p>NRO: {{ habitacion.numero_habitacion }}</p>
+                                    {% endfor %}  
+                                </td>
+                                <td>
+                                    {{rev.FechaEntrada|date:"d M, Y"}}
+                                </td>
+                                <td>
+                                    {{rev.FechaSalida|date:"d M, Y" }}
+                                </td>
+                                <td>
+                                    {{rev.estado_reserva}}
+                                </td>
+                            </tr>
+                            {%endif%}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -207,6 +255,11 @@
 <script>
     $(document).ready(function() {
     $('#habitaciones-table').DataTable();  
+});
+</script>
+<script>
+    $(document).ready(function() {
+    $('#ticket-table-rev-arch').DataTable();  
 });
 </script>
 <script>
