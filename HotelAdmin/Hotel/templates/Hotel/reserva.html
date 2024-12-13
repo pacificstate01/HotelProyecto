@@ -155,7 +155,7 @@
         </div>
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">Archivo Reservas</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Historial Reservas</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -163,6 +163,7 @@
                         <thead>
                             <tr>
                                 <th>Numero de reserva</th>
+                                <th>Nombre de cliente</th>
                                 <th>Numero de documento</th>
                                 <th>Correo</th>
                                 <th>Habitacion reservada</th>
@@ -177,6 +178,9 @@
                             <tr>
                                 <td>
                                     RESERVA: {{rev.codigo_reserva}}
+                                </td>
+                                <td>
+                                    {{rev.cliente.nombre}} {{rev.cliente.apellido}}
                                 </td>
                                 <td>
                                     RUT: {{rev.cliente.formatted_numero_documento }}

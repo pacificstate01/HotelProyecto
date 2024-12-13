@@ -54,7 +54,7 @@ class ClientsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         reservas = Reserva.objects.prefetch_related(
             'habitaciones',  # Trae las habitaciones relacionadas
             'cliente'        # Trae el cliente relacionado
-        ).filter(FechaEntrada__month=datetime.now().month)  # Si quieres filtrar por el mes actual, agrega este filtro.
+        ).filter(FechaEntrada__month=datetime.now().month)  
         
         return reservas
 
@@ -400,7 +400,6 @@ class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Reserva
     template_name = 'Hotel/factura.html'
     context_object_name = 'reserva'
-
     def get(self, request, *args, **kwargs):
         try:
             codigo_factura = kwargs['codigo_factura']
@@ -415,14 +414,15 @@ class Factura_pdf(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         
         reserva.monto_total = total
         reserva.save()
-
+        current_user = request.user
         
         context = {
             'reserva': reserva,
             'habitaciones': reserva.habitaciones.all(),  
             'dias_estadia': dias_estadia,
             'total': total,
-            'total_impuestos': total_impuestos
+            'total_impuestos': total_impuestos,
+            'user': current_user           
         }
 
         html_string = render_to_string(self.template_name, context)

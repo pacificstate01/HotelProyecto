@@ -26,6 +26,7 @@
 </head>
 <body>
     <h1>Factura código: {{ reserva.codigo_factura }}</h1>
+    <h2>Emisor de factura: {{user.name}} {{user.last_name}}</h2>
     <h2>Cliente: {{ reserva.cliente.nombre }} {{ reserva.cliente.apellido }}</h2>
     <h3>Nro de documento: {{ reserva.cliente.numero_documento }}</h3>
     <h3>Correo: {{ reserva.cliente.correo }}</h3>
