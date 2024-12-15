@@ -94,9 +94,9 @@ class Reserva(models.Model):
     FechaSalida = models.DateField(null=True, blank=True)
     original_FechaEntrada = models.DateField(blank=True, null=True)
     original_FechaSalida = models.DateField(blank=True, null=True)
-    habitaciones = models.ManyToManyField('Habitacion', verbose_name="Habitaciones")
-    cliente = models.ForeignKey('Client', on_delete=models.PROTECT, verbose_name="Cliente")
-    usuario = models.ForeignKey('TipoUsuario', on_delete=models.PROTECT, verbose_name="Usuario")
+    habitaciones = models.ManyToManyField(Habitacion, verbose_name="Habitaciones")
+    cliente = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name="Cliente")
+    usuario = models.ForeignKey(TipoUsuario, on_delete=models.PROTECT, verbose_name="Usuario")
     detallesRev = models.TextField(blank=True, verbose_name="Detalles reserva")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
@@ -129,7 +129,7 @@ class Reserva(models.Model):
     def save(self, *args, **kwargs):
         if not self.codigo_factura:
             self.codigo_factura = str(uuid.uuid4())[:8]  
-        
+
         if not self.pk:
             super().save(*args, **kwargs)
         if self.estado_reserva == 'CONFIRMADA':

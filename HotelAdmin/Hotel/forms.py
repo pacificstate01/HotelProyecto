@@ -151,3 +151,4 @@ class ReservaForm(forms.ModelForm):
             }),
             'detallesRev': forms.Textarea(attrs={'class': 'form-control'})
         }
+        

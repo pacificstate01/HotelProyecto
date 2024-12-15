@@ -332,7 +332,8 @@ class BookingViewCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         instance.habitaciones.set(habitaciones)  # Asociamos las habitaciones seleccionadas
 
         return JsonResponse({'success': True, 'message': 'Reserva creada correctamente!'})
-
+    def form_invalid(self, form):
+        return JsonResponse({'success': False, 'errors': form.errors})
 
 
 class BookingViewDelete(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
