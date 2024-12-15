@@ -77,20 +77,32 @@ class RoomForm(forms.ModelForm):
     ]
     tipo_habitacion = forms.ChoiceField(
         choices=TIPO_HABITACION,
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        error_messages={
+            'required': 'Debe seleccionar un tipo de habitacion.',
+        }
     )
     estado_habitacion = forms.ChoiceField(
         choices=ESTADO_HABITACION,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+    numero_habitacion = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        error_messages={
+            'required': 'Debe ingresar el número de la habitación.',
+            'invalid': 'El número de la habitación debe ser válido.',
+        }
+    )
+    precio_habitacion = forms.DecimalField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        error_messages={
+            'required': 'Debe ingresar el precio de la habitación.',
+            'invalid': 'El precio debe ser un número válido.',
+        }
+    )
     class Meta:
         model = Habitacion
         fields = ['numero_habitacion', 'tipo_habitacion','estado_habitacion','precio_habitacion']
-        widgets  = {
-                'numero_habitacion': forms.TextInput(attrs={'class': 'form-control'}),
-                'precio_habitacion': forms.TextInput(attrs={'class': 'form-control'})
-        }
-
 
 
 
@@ -99,12 +111,18 @@ class ReservaForm(forms.ModelForm):
         queryset=Client.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Cliente",
-        to_field_name='numero_documento'
+        to_field_name='numero_documento',
+        error_messages={
+            'required': 'Debe seleccionar un cliente.',
+        }
     )
     habitaciones = forms.ModelMultipleChoiceField(
         queryset=Habitacion.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
-        label="Habitaciones Disponibles"
+        label="Habitaciones Disponibles",
+        error_messages={
+            'required': 'Debe seleccionar una o mas habitaciones.',
+        }
     )
 
     def __init__(self, *args, **kwargs):
