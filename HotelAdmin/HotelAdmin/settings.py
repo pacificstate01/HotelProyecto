@@ -83,7 +83,7 @@ DATABASES = {
         "NAME": "HotelAdmin",
         "USER": "postgres",
         "PASSWORD": "4xs2bl9d5t69",
-        "HOST": "localhost",
+        "HOST": "hoteladmin.cbqeabthuvf7.us-east-1.rds.amazonaws.com",
         "PORT": "5432",
     }
 }
