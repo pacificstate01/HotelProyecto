@@ -102,7 +102,6 @@ class Reserva(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de Última Actualización")
     codigo_factura = models.CharField(max_length=20, unique=True, null=True, blank=True)
     fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión", null=True, blank=True)
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total", null=True, blank=True)
     habitaciones_count = models.PositiveIntegerField(default=0, editable=False)
 
     def clean(self):
