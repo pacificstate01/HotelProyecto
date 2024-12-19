@@ -11,8 +11,8 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 
 def generar_reporte_ocupacion():
-    # Obtener todos los números de habitación
-    habitaciones = list(Habitacion.objects.values_list('numero_habitacion', flat=True))
+    # Obtener y ordenar todos los números de habitación de menor a mayor
+    habitaciones = sorted(Habitacion.objects.values_list('numero_habitacion', flat=True))
     dias_mes = range(1, 32)  # Días del mes (1 al 31)
 
     # Obtener todas las reservas del mes actual
@@ -30,6 +30,7 @@ def generar_reporte_ocupacion():
     for reserva in reservas:
         for habitacion in reserva.habitaciones.all():
             try:
+                # Obtener el índice de la habitación en la lista ordenada
                 habitacion_idx = habitaciones.index(habitacion.numero_habitacion)
                 fecha_inicio = reserva.original_FechaEntrada.day
                 fecha_fin = reserva.original_FechaSalida.day
@@ -43,27 +44,33 @@ def generar_reporte_ocupacion():
                 continue
 
     # Crear el gráfico
-    fig, ax = plt.subplots(figsize=(12, 6))
-    cax = ax.imshow(disponibilidad, cmap="Greens", aspect="auto", 
-                extent=[0, len(dias_mes) + 0,len(habitaciones) - 0, -0])
+    fig, ax = plt.subplots(figsize=(11, 6))
+    cax = ax.imshow(disponibilidad, cmap="PuBu", aspect="auto",
+                    extent=[1.7, len(dias_mes) - 1.1, len(habitaciones) - 0, -0])
 
     # Dibujar contornos para las reservas
     for habitacion_idx, inicio, fin in reservas_bloques:
         rect = Rectangle(
-            (inicio , habitacion_idx ),  # Coordenada de inicio ajustada
-            fin - inicio + 1,  # Ancho
+            (inicio, habitacion_idx),  # Coordenada de inicio ajustada
+            fin - inicio,  # Ancho
             1,  # Alto (una fila por habitación)
-            linewidth=2,
-            edgecolor="blue",
+            linewidth=2.8,
+            edgecolor="red",
             facecolor="none"
         )
         ax.add_patch(rect)
 
-    # Etiquetas para el gráfico
-    ax.set_yticks(range(len(habitaciones)))
-    ax.set_yticklabels(habitaciones)
-    ax.set_xticks(range(len(dias_mes)))
-    ax.set_xticklabels(dias_mes)
+    # Agregar cuadrícula para mayor legibilidad
+    ax.set_xticks(np.arange(1, len(dias_mes) + 1))
+    ax.set_yticks(np.arange(1, len(habitaciones) + 1))
+    ax.grid(color="black", linestyle="--", linewidth=0.5, alpha=0.3)
+
+# Etiquetas para el gráfico
+    ax.set_yticks(np.arange(len(habitaciones)) + 0.5)  # Centrar los números en la mitad
+    ax.set_yticklabels(habitaciones)  # Mostrar el número de la habitación
+    ax.set_xticks(np.arange(len(dias_mes)))  # Asegurar que los días estén en el centro
+    ax.set_xticklabels(dias_mes)  # Etiquetas de los días
+
     ax.set_xlabel("Días del mes")
     ax.set_ylabel("Habitaciones")
     ax.set_title("Reporte de ocupación de habitaciones")
