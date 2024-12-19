@@ -44,12 +44,13 @@ def generar_reporte_ocupacion():
 
     # Crear el gráfico
     fig, ax = plt.subplots(figsize=(12, 6))
-    cax = ax.imshow(disponibilidad, cmap="Greens", aspect="auto")
+    cax = ax.imshow(disponibilidad, cmap="Greens", aspect="auto", 
+                extent=[0, len(dias_mes) + 0,len(habitaciones) - 0, -0])
 
     # Dibujar contornos para las reservas
     for habitacion_idx, inicio, fin in reservas_bloques:
         rect = Rectangle(
-            (inicio - 0.5, habitacion_idx - 0.5),  # Coordenada de inicio ajustada
+            (inicio , habitacion_idx ),  # Coordenada de inicio ajustada
             fin - inicio + 1,  # Ancho
             1,  # Alto (una fila por habitación)
             linewidth=2,
